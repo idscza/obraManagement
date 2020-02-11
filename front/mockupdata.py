@@ -11,16 +11,20 @@ import random as r
 def generate_mockup(nombre):
     
     mud = {"nombre":nombre}
-    mud["prep1"] = r.randint(10,100)*1000000
     
     mud['Entradas'] = {}
-    mud['Entradas']['Inversionistas']
-    mud['Entradas']['Ventas']
+    mud['Entradas']['Inversionistas'] = r.randint(10,100)*1000000
+    mud['Entradas']['Ventas'] = r.randint(10,100)*1000000
+    
+    salidas = {}
+    salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
+    salidas['Nomina Empresarial'] =  r.randint(10,100)*1000000
+    salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
+    salidas['Permisos Primarios'] =  r.randint(10,100)*1000000
+    salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
+    salidas['Ejecución Proyectos'] =  r.randint(10,100)*1000000
     
     
-    
-    
-    
-    mud['Salidas']['Iniciales']
+    mud['Salidas'] = salidas
     
     return mud

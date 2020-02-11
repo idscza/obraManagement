@@ -13,4 +13,14 @@ def generate_mockup(nombre):
     mud = {"nombre":nombre}
     mud["prep1"] = r.randint(10,100)*1000000
     
+    mud['Entradas'] = {}
+    mud['Entradas']['Inversionistas']
+    mud['Entradas']['Ventas']
+    
+    
+    
+    
+    
+    mud['Salidas']['Iniciales']
+    
     return mud

@@ -85,7 +85,7 @@ def registrar_transaccion(nombre,transaccion,monto):
     if eqe == '':
         return (False,'Obra no encontrada')
     print(eqe)
-    if True:
+    try:
         monto = int(monto)
         if transaccion in eqe['Entradas'].keys():
             eqe['Entradas'][transaccion]+=monto
@@ -101,5 +101,5 @@ def registrar_transaccion(nombre,transaccion,monto):
                 return (True,'')
         else:
             return (False,'Transaccion no válida')
-    else:
+    except:
         return(False,'Ingrese por favor un número')

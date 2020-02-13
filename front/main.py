@@ -81,6 +81,10 @@ def __main__():
     btn1.grid(column=2, row=2, sticky = (W))
     
     
+    agg_rub=partial(agregar_rubro,[combo,txt,combochoice,nomrub,cant])
+    btn2 = Button(window, text="Agregar Rubro            ",command=agg_rub,state='disabled')
+    btn2.grid(column=2, row=3, sticky = (W))
+    
     menus = Menu(window)
  
     new_item = Menu(menus)
@@ -178,8 +182,11 @@ def registrar_transaccion(data):
 
 
 def agregar_rubro(data):
-    pass
-
+    rta = mu.agregar_rubro(data[0].get(),data[3].get(),data[4].get())
+    if rta[0] == False:
+        messagebox.showerror('Error al Crear Rubro', rta[1])
+    else:
+        actualizar_valores(data,'')
 
 
 __main__()

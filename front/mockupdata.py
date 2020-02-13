@@ -75,17 +75,16 @@ def generate_new_mockup(nombre):
 
 def registrar_transaccion(nombre,transaccion,monto):
     eqe = ''
-    print(nombre)
-    print(transaccion)
-    print(monto)
     for i in mockups:
         if i['nombre']==nombre:
             eqe = i
             break
     if eqe == '':
         return (False,'Obra no encontrada')
-    print(eqe)
     try:
+        monto = monto.replace(' ','')
+        if monto == '':
+            return (False,'Ingrese un valor en la transacción')
         monto = int(monto)
         if transaccion in eqe['Entradas'].keys():
             eqe['Entradas'][transaccion]+=monto
@@ -95,7 +94,9 @@ def registrar_transaccion(nombre,transaccion,monto):
                 eqe['Salidas'][transaccion][0]=monto
                 return (True,'')
             elif eqe['Salidas'][transaccion][1] + monto > eqe['Salidas'][transaccion][0]:
-                return (False,'Esta transacción excede el presupuesto')
+                return (False,'Esta transacción excede el presupuesto del rubro')
+            elif fallo_de_presupuesto(eqe,monto):
+                return (False,'Esta transacción excede el dinero disponible de la obra')
             else:
                 eqe['Salidas'][transaccion][1] += monto
                 return (True,'')
@@ -103,3 +104,38 @@ def registrar_transaccion(nombre,transaccion,monto):
             return (False,'Transaccion no válida')
     except:
         return(False,'Ingrese por favor un número')
+
+def fallo_de_presupuesto(obra,extra):
+    loquentra = 0
+    for i in obra['Entradas']:
+        loquentra+=obra['Entradas'][i]
+    loquehalasido = 0
+    for j in obra['Salidas']:
+        loquehalasido+=obra['Salidas'][j][1]
+    loquehalasido+=extra
+    if loquentra >loquehalasido:
+        return False
+    else:
+        return True
+
+def agregar_rubro(nombre,rubro,valor):
+    eqe = ''
+    for i in mockups:
+        if i['nombre']==nombre:
+            eqe = i
+            break
+    if eqe == '':
+        return (False,'Obra no encontrada')
+    try:
+        valor = valor.replace(' ','')
+        if valor == '':
+            valor = 0
+        valor = int(valor)
+        rubro = rubro.strip()
+        if rubro in eqe['Salidas'].keys():
+            return (False,'Ya existe este rubro')
+        else:
+            eqe['Salidas'][rubro] = [valor,0]
+            return(True,'')
+    except:
+       return(False,'Ingrese por favor un número')

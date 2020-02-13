@@ -20,8 +20,8 @@ def generate_mockup(nombre):
     salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
     salidas['Nomina Empresarial'] =  r.randint(10,100)*1000000
     salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
-    salidas['Permisos Primarios'] =  r.randint(10,100)*1000000
-    salidas['Retorno Inversionistas'] =  r.randint(10,100)*1000000
+    salidas['Stuff'] =  r.randint(10,100)*1000000
+    salidas['Stuff1'] =  r.randint(10,100)*1000000
     salidas['Ejecución Proyectos'] =  r.randint(10,100)*1000000
     
     

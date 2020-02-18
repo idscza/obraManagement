@@ -44,16 +44,25 @@ def __main__():
     combochoice = Combobox(window,width=25)
     combochoice.grid(column=2, row=2)
     
-    
-    btn2 = Button(window, text="Agregar Rubro            ",state='disabled')
-    btn2.grid(column=2, row=3, sticky = (W))
-    
     nomrub = Entry(window,width=28,state='disabled')
     nomrub.grid(column=2, row=3)
     
     cant = Entry(window,width=25,state='disabled')
     cant.grid(column=2, row=3, sticky = (E))
     
+    
+    btnx = Button(window,text="try",command= lambda: new_window())
+    btnx.grid(column=3,row=1)
+    
+    def new_window():
+		
+        temp = Toplevel(window)
+        Agregar_rubroo(temp,mu)
+    
+    
+    def butnew(self, text, number, _class):
+        Button(self.frame, text = text, command= lambda: self.new_window(number, _class)).pack()
+
     
     '''btn3 = Button(window, text="Ver Reporte",state='disabled')
     btn3.grid(column=2, row=3, sticky = (W))'''
@@ -187,6 +196,56 @@ def agregar_rubro(data):
         messagebox.showerror('Error al Crear Rubro', rta[1])
     else:
         actualizar_valores(data,'')
+
+def agregar_rubro1(data):
+    rta = mu.agregar_rubro(data[0],data[3],data[4])
+    if rta[0] == False:
+        messagebox.showerror('Error al Crear Rubro', rta[1])
+    else:
+        messagebox.showerror('cOPASo', rta[1])
+
+
+class Win2:
+	def __init__(self, master):
+		self.master = master
+		self.master.geometry("400x400+200+200")
+		self.frame = Frame(self.master)
+		self.quit = Button(self.frame, text = f"Quit this window n. ", command = self.close_window)
+		self.quit.pack()
+		self.frame.pack()
+ 
+	def close_window(self):
+		self.master.destroy()
+        
+class Agregar_rubroo:
+    def __init__(self, master,mu):
+        mu = mu
+        self.master = master
+        self.master.geometry("250x250")
+        self.frame = Frame(self.master)
+        self.quit = Button(self.frame, text = " Salir ", command = self.close_window)
+        self.lbl1 = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",10))
+        self.entr1 = Entry(self.frame,width=35)
+        self.lbl2 = Label(self.frame,text="Ingrese Presupuesto",font=("Arial",10))
+        self.entr2 = Entry(self.frame,width=35)
+        self.agregar = Button(self.frame, text = "Agregar", command = lambda: agregar_rubro1(["Los Alpes",0,0,"Putas","1000"]))
+        self.lbl1.pack()
+        self.entr1.pack()
+        self.lbl2.pack()
+        self.entr2.pack()
+        self.quit.pack()
+        self.agregar.pack()
+        self.frame.pack()
+ 
+    def close_window(self):
+        self.master.destroy()
+    
+    def agg_rub(data,x):
+        rta = mu.agregar_rubro(data[0],data[3],data[4])
+        if rta[0] == False:
+            messagebox.showerror('Error al Crear Rubro', rta[1])
+        else:
+            actualizar_valores(data,'')
 
 
 __main__()

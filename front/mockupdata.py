@@ -9,6 +9,8 @@ import random as r
 
 mockups = ''
 
+pwcombo = {'admin':'Ditto1'}
+
 def generate_mockups(tupla):
     
     mus = []

@@ -221,7 +221,7 @@ class Agregar_rubroo:
     def __init__(self, master,mu):
         mu = mu
         self.master = master
-        self.master.geometry("250x250")
+        self.master.geometry("250x150")
         self.frame = Frame(self.master)
         self.quit = Button(self.frame, text = " Salir ", command = self.close_window)
         self.lbl1 = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",10))
@@ -235,6 +235,7 @@ class Agregar_rubroo:
         self.entr2.pack()
         self.quit.pack()
         self.agregar.pack()
+        self.master.resizable(False, False)
         self.frame.pack()
  
     def close_window(self):

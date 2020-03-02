@@ -96,12 +96,12 @@ class main:
         self.window.resizable(False, False)
 
     
-    def activar_todo():
-        print("Cáceres se la come")
+    def activar_todo(self):
+        print("TODO")
             
     def open_t(self,_class):	
         self.temp = Toplevel(self.window)
-        _class(self.temp,self.window,mu)
+        _class(self.temp)
 
 
 #Totally Mockup, it should call SQL DB
@@ -212,7 +212,7 @@ class login:
 		self.master.destroy()
         
 class ventana_agregar_rubro:
-    def __init__(self, master, parent, mu):
+    def __init__(self, master):
         mu = mu
         self.master = master
         self.master.geometry("250x150")
@@ -236,7 +236,7 @@ class ventana_agregar_rubro:
         self.master.destroy()
 
 class ventana_agregar_transaccion:
-    def __init__(self, master, parent, mu):
+    def __init__(self, master):
         mu = mu
         self.master = master
         self.master.geometry("250x150")
@@ -260,11 +260,8 @@ class ventana_agregar_transaccion:
         self.master.destroy()
         
 class ventana_iniciar_sesion:
-    def __init__(self, master, parent, mu):
-        print(type(parent))
-        self.mu = mu
+    def __init__(self, master):
         self.master = master
-        self.parent = parent
         self.master.geometry("250x150")
         self.frame = Frame(self.master)
         self.quit = Button(self.frame, text = " Cancelar ", command = self.close_window)
@@ -272,7 +269,7 @@ class ventana_iniciar_sesion:
         self.entr1 = Entry(self.frame,width=35)
         self.lbl2 = Label(self.frame,text="Contraseña",font=("Arial",10))
         self.entr2 = Entry(self.frame,show="*",width=35)
-        self.agregar = Button(self.frame, text = "Agregar", command = lambda: self.iniciar_sesion(self.mu,self.entr1,self.entr2))
+        self.agregar = Button(self.frame, text = "Agregar", command = lambda: self.iniciar_sesion(self.entr1,self.entr2))
         self.lbl1.pack()
         self.entr1.pack()
         self.lbl2.pack()
@@ -285,7 +282,7 @@ class ventana_iniciar_sesion:
     def close_window(self):
         self.master.destroy()
 
-    def iniciar_sesion(self,mu,usr,pw):
+    def iniciar_sesion(self,usr,pw):
         trial = mu.pwcombo
         theusr = usr.get().lower()
         if theusr not in trial.keys():
@@ -294,7 +291,6 @@ class ventana_iniciar_sesion:
             messagebox.showerror('Error', 'Contraseña inválida')
         else:
             main.activar_todo()
-            pass
         self.master.destroy()
 
 root = Tk()

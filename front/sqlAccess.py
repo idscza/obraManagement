@@ -95,6 +95,18 @@ def select_all_obras():
         for row in rows:
             users.append(str(row[0]) + ". " +row[1])
         return tuple(users)
+    
+def get_obra(elid):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM obras WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,(elid,))
+        
+        return cur.fetchall()[0]
 
 def create_transaccion(transaccion):
     database = "database/trialdb.db"

@@ -10,10 +10,17 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter import messagebox
 from tkinter.ttk import *
-import mockupdata as mu
 import sqlAccess as sql
-from functools import partial
 import datetime
+from PIL import Image, ImageTk
+
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
+import numpy as np
 
 
 class main:
@@ -25,8 +32,14 @@ class main:
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
 
-        self.lbl = Label(window, text="  Bienvenidos al Manejador \n de Presupuestos de Obras",font=("Arial",20))
+        #self.lbl = Label(window, text="  Bienvenidos al Manejador \n de Presupuestos de Obras",font=("Arial",20))
+        #self.lbl.grid(column=0, row=1)
+        
+        self.photo = Image.open("pic.png")
+        self.thephoto = ImageTk.PhotoImage(self.photo)
+        self.lbl = Label(window,image=self.thephoto)
         self.lbl.grid(column=0, row=1)
+        self.lbl.image = self.thephoto
 
         self.lbl1 = Label(window, text=' ')
         self.lbl1.grid(column=1,row=0)
@@ -55,7 +68,7 @@ class main:
         self.btn1.grid(column=2, row=2, sticky = (W))
         
         
-        self.btn3 = Button(window, text="Mostrar Facturas        ",
+        self.btn3 = Button(window, text="Mostrar Facturas         ",
                            command = lambda: self.ventana_mostrar_f(Toplevel(self.window)),
                            state='disabled')
         self.btn3.grid(column=2, row=2, sticky = (E))
@@ -65,12 +78,30 @@ class main:
                                ,state='disabled')
         self.btn2.grid(column=2, row=2)
         
+        self.btn4 = Button(window, text="        Ver Clientes         ",
+                           command=lambda: self.ventana_agregar_t(Toplevel(self.window))
+                               ,state='disabled')
+        self.btn4.grid(column=2, row=3)
+        
+        self.btn5 = Button(window, text="Información Obra       ",
+                           command=lambda: self.ventana_info_obra(Toplevel(self.window))
+                               ,state='disabled')
+        self.btn5.grid(column=2, row=3, sticky = (E))
+        
+        self.btn6 = Button(window, text="Ver Gráficas                 ",
+                           command=lambda: self.ventana_agregar_t(Toplevel(self.window))
+                               ,state='disabled')
+        self.btn6.grid(column=2, row=3, sticky = (W))
+        
         self.menus = Menu(window)
  
         self.new_item = Menu(self.menus)
         
         self.menus.add_command(label='Iniciar Sesión',
                     command=lambda: self.ventana_iniciar(Toplevel(self.window)))
+        self.menus.add_command(label='Estado General',state='disabled',
+                    command=lambda: self.ventana_estadogeneral(Toplevel(self.window)))
+        
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
         self.menus.add_command(label='Cerrar Sesión',state='disabled',
@@ -85,6 +116,7 @@ class main:
         self.menus.entryconfig('Iniciar Sesión',state='disabled')
         self.menus.entryconfig("Crear Usuario",state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
+        self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
         self.actualizar_valores()
     
@@ -98,6 +130,9 @@ class main:
         self.btn2.state(['!disabled'])
         self.btn1.state(['!disabled'])
         self.btn3.state(['!disabled'])
+        self.btn4.state(['!disabled'])
+        self.btn5.state(['!disabled'])
+        self.btn6.state(['!disabled'])
         self.btn.state(['!disabled'])
        
         
@@ -311,7 +346,97 @@ class main:
         self.agregar.pack(side = "right")
         self.master.resizable(False, False)
         self.frame.pack()
+        
+    #Ventana Estado General
     
+    def ventana_estadogeneral(self,master):
+        self.master = master
+        self.master.geometry("820x320")
+        self.frame = Frame(self.master)
+        
+        def close_window(self):
+            self.master.destroy()
+            
+        data = self.generar_estado(sql.select_all_obras())
+            
+        self.quit = Button(self.frame, text = " Cancelar ", 
+                           command = lambda : close_window(self))
+        self.lbltt = Label(self.frame,text="Presupuesto General",font=("Arial",14))
+        self.lblio = Label(self.frame,text="Ingresos: $"+str(data[0][0])+
+                           "   Egresos: $"+str(data[0][1]),font=("Arial",14)) 
+        
+        self.vista = Treeview(self.frame, columns = ("entrada", "presupuesto","gasto"))
+        facturas = sql.select_transacciones_obra(self.actual_obra) 
+        
+        self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
+        self.vsb.pack(side='right', fill='y')
+        self.vista.configure(yscrollcommand=self.vsb.set)
+        
+        self.vista.heading("#0", text="Obra")
+        self.vista.heading("entrada", text="Entrada")
+        self.vista.heading("presupuesto", text="Presupuesto")
+        self.vista.heading("gasto", text="Gasto")
+        
+        for i in range(1,len(data)):
+            self.vista.insert("",END,text=data[i][0],values=(data[i][1],
+                              data[i][2],
+                              data[i][3]))
+        self.lbltt.pack()
+        self.lblio.pack()
+        self.vista.pack()       
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()
+    
+    def generar_estado(self,lista_obras):
+        estado = []
+        estado.append([0,0])
+        for i in range(len(lista_obras)):
+            mock = lista_obras[i].split(". ")
+            temp = sql.select_transacciones_obra(mock[0])
+            estado.append([lista_obras[i],0,0,0])
+            for trans in temp:
+                if trans[5]=="Entrada":
+                    estado[0][0]+=trans[4]
+                    estado[i+1][1]+=trans[4]
+                elif trans[5]=="Gasto":
+                    estado[0][1]+=trans[4]
+                    estado[i+1][3]+=trans[4]                    
+                elif trans[5]=="Presupuesto":
+                    estado[i+1][2]+=trans[4]
+        return estado
+    
+    #Ventana info Obra
+    
+    def ventana_info_obra(self,master):
+        self.master = master
+        self.master.geometry("370x170")
+        self.frame = Frame(self.master)
+        
+        def close_window(self):
+            self.master.destroy()
+            
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))       
+        
+        data = sql.get_obra(self.actual_obra)
+        self.lblp = Label(self.frame,text=data[1],font=("Arial",14))
+        self.lblq = Label(self.frame,text="Ciudad: "+data[2],font=("Arial",12))
+        self.lblr = Label(self.frame,text="Direccion: "+data[3],font=("Arial",12))
+        self.lbls = Label(self.frame,text="Ingeniero Encargado: "+data[4],font=("Arial",12))
+        #self.lblu = Label(self.frame,text="Aptos Disponibles: "+data[7],font=("Arial",12))
+        self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
+                          +data[6],font=("Arial",10))      
+        self.lblp.pack()
+        self.lblq.pack()
+        self.lblr.pack()
+        self.lbls.pack()
+        #self.lblu.pack()
+        self.lblt.pack()
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()    
+        
     #Ventana para Agregar Usuario
     def ventana_nuevo_usuario(self,master):
         self.master = master
@@ -371,6 +496,7 @@ class main:
             self.menus.entryconfig('Iniciar Sesión',state='normal')
             self.menus.entryconfig("Crear Usuario",state='disabled')
             self.menus.entryconfig("Cerrar Sesión",state='disabled')
+            self.menus.entryconfig("Estado General",state='disabled')
             self.actual_user = ''
             self.actual_obra = 0
             self.txt.delete(1.0,END)
@@ -600,23 +726,7 @@ class main:
         self.frame.pack()
                                    
     #Ventana para ver graficas de obra
-
-
-#Totally Mockup, it should call SQL DB
-
-
-def registrar_transaccion(data):
-    rta = mu.registrar_transaccion(data[0].get(),data[2].get(),data[3].get())
-    if rta[0] == False:
-        messagebox.showerror('Error al Registrar', rta[1])
-    else:
-        #actualizar_valores(data,'')
-        pass
-
-
- 
-    def close_window(self):
-        self.master.destroy()       
+    
 
 root = Tk()
 app = main(root)

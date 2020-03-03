@@ -50,7 +50,7 @@ def main():
                                     ); """
 
     crear_clientes = """ CREATE TABLE IF NOT EXISTS clientes (
-                                        id int PRIMARY KEY,
+                                        id integer PRIMARY KEY,
                                         nombre text NOT NULL,
                                         telefono text NOT NULL,
                                         direccion text NOT NULL
@@ -63,7 +63,8 @@ def main():
                                     direccion text NOT NULL,
                                     encargado text NOT NULL,
                                     begin_date text NOT NULL,
-                                    end_date text NOT NULL                       
+                                    end_date text NOT NULL,
+                                    apartamentos integer
                                 );"""
     
     crear_transacciones = """CREATE TABLE IF NOT EXISTS transacciones (
@@ -74,8 +75,10 @@ def main():
                                     valor real NOT NULL,
                                     tipo text NOT NULL,
                                     presupuestado text NOT NULL,
+                                    cliente_id integer,
                                     FOREIGN KEY (obra_id) REFERENCES obras (id),
-                                    FOREIGN KEY (responsable) REFERENCES users (user)
+                                    FOREIGN KEY (responsable) REFERENCES users (user),
+                                    FOREIGN KEY (cliente_id) REFERENCES clientes (id)
                                 );"""
  
     # create a database connection
@@ -90,8 +93,11 @@ def main():
         create_table(conn, crear_obras)
         
         # create transacciones
-        #create_table(conn, crear_transacciones)
         create_table(conn, crear_transacciones)
+        
+        # create clientes
+        #create_table(conn crear_clientes)
+        
     else:
         print("Error! cannot create the database connection.")
     

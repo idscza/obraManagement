@@ -106,8 +106,6 @@ class main:
         corpus = name
         
         trans = sql.select_transacciones_obra(self.actual_obra)
-        print(trans)
-        print(self.actual_obra)
         
         synth = self.analizar_transacciones(trans)
     
@@ -561,6 +559,7 @@ class main:
   
         
     #Ventana para ver Historial Facturas
+    
     
     #Ventana para ver graficas de obra
 

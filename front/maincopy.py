@@ -568,7 +568,7 @@ class main:
     #Ventana para ver Historial Facturas
     def ventana_mostrar_f(self,master):
         self.master = master
-        #self.master.geometry("500x500")
+        self.master.geometry("1030x260")
         self.frame = Frame(self.master)
                   
         def close_window(self):
@@ -577,7 +577,12 @@ class main:
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         self.vista = Treeview(self.frame, columns = ("rubro", "tipo","valor","responsable"))
-        facturas = sql.select_transacciones_obra(self.actual_obra)  
+        facturas = sql.select_transacciones_obra(self.actual_obra) 
+        
+        self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
+        self.vsb.pack(side='right', fill='y')
+        self.vista.configure(yscrollcommand=self.vsb.set)
+        
         self.vista.heading("#0", text="ID")
         self.vista.heading("rubro", text="Rubro")
         self.vista.heading("tipo", text="Tipo Transacción")
@@ -586,8 +591,8 @@ class main:
         tr = sql.select_transacciones_obra(self.actual_obra)
         for i in tr:
             self.vista.insert("",END,text=i[0],values=(i[3],
-                              i[4],
                               i[5],
+                              i[4],
                               sql.get_name_by_user(i[2])))
         self.vista.pack()
         self.quit.pack()

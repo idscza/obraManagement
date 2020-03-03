@@ -63,8 +63,7 @@ def main():
                                     direccion text NOT NULL,
                                     encargado text NOT NULL,
                                     begin_date text NOT NULL,
-                                    end_date text NOT NULL,
-                                    apartamentos integer
+                                    end_date text NOT NULL
                                 );"""
     
     crear_transacciones = """CREATE TABLE IF NOT EXISTS transacciones (
@@ -75,10 +74,8 @@ def main():
                                     valor real NOT NULL,
                                     tipo text NOT NULL,
                                     presupuestado text NOT NULL,
-                                    cliente_id integer,
                                     FOREIGN KEY (obra_id) REFERENCES obras (id),
-                                    FOREIGN KEY (responsable) REFERENCES users (user),
-                                    FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+                                    FOREIGN KEY (responsable) REFERENCES users (user)
                                 );"""
  
     # create a database connection

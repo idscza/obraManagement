@@ -130,9 +130,9 @@ class main:
         self.btn2.state(['!disabled'])
         self.btn1.state(['!disabled'])
         self.btn3.state(['!disabled'])
-        self.btn4.state(['!disabled'])
+        #self.btn4.state(['!disabled'])
         self.btn5.state(['!disabled'])
-        self.btn6.state(['!disabled'])
+        #self.btn6.state(['!disabled'])
         self.btn.state(['!disabled'])
        
         

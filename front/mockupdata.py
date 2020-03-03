@@ -9,7 +9,7 @@ import random as r
 
 mockups = ''
 
-pwcombo = {'admin':'Ditto1'}
+pwcombo = {'admin':'admin'}
 
 def generate_mockups(tupla):
     

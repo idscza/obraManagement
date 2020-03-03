@@ -53,6 +53,12 @@ class main:
                            command = lambda: self.ventana_agregar_r(Toplevel(self.window)),
                            state='disabled')
         self.btn1.grid(column=2, row=2, sticky = (W))
+        
+        
+        self.btn3 = Button(window, text="Mostrar Facturas        ",
+                           command = lambda: self.ventana_mostrar_f(Toplevel(self.window)),
+                           state='disabled')
+        self.btn3.grid(column=2, row=2, sticky = (E))
     
         self.btn2 = Button(window, text="Registrar Transacción",
                            command=lambda: self.ventana_agregar_t(Toplevel(self.window))
@@ -91,6 +97,7 @@ class main:
             pass
         self.btn2.state(['!disabled'])
         self.btn1.state(['!disabled'])
+        self.btn3.state(['!disabled'])
         self.btn.state(['!disabled'])
        
         
@@ -372,7 +379,7 @@ class main:
             self.btn2.state(['disabled'])
             self.btn1.state(['disabled'])
             self.btn.state(['disabled'])
-            #self.monto.state(['disabled'])
+            self.btn3.state(['!disabled'])
             
     #Ventana para Agregar Obra
     
@@ -559,8 +566,34 @@ class main:
   
         
     #Ventana para ver Historial Facturas
-    
-    
+    def ventana_mostrar_f(self,master):
+        self.master = master
+        #self.master.geometry("500x500")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()      
+        
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        self.vista = Treeview(self.frame, columns = ("rubro", "tipo","valor","responsable"))
+        facturas = sql.select_transacciones_obra(self.actual_obra)  
+        self.vista.heading("#0", text="ID")
+        self.vista.heading("rubro", text="Rubro")
+        self.vista.heading("tipo", text="Tipo Transacción")
+        self.vista.heading("valor", text="Valor")
+        self.vista.heading("responsable", text="Responsable")
+        tr = sql.select_transacciones_obra(self.actual_obra)
+        for i in tr:
+            self.vista.insert("",END,text=i[0],values=(i[3],
+                              i[4],
+                              i[5],
+                              sql.get_name_by_user(i[2])))
+        self.vista.pack()
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()
+                                   
     #Ventana para ver graficas de obra
 
 

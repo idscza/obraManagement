@@ -53,6 +53,18 @@ def select_all_users():
         for row in rows:
             users[row[0]]=row[1]
         return users
+
+def get_name_by_user(username):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT nombre FROM users WHERE user = ?"
+        cur = conn.cursor()
+        cur.execute(sql,(username,))
+        
+        return cur.fetchall()[0][0]
  
 def create_obra(obra):
     database = "database/trialdb.db"
@@ -98,17 +110,6 @@ def create_transaccion(transaccion):
         cur.execute(sql, transaccion)
         return cur.lastrowid 
 
-
-def build_obra():
-    database = "database/trialdb.db"
- 
-    # create a database connection
-    conn = create_connection(database)
-    with conn:
-        cur = conn.cursor()
-        cur.execute()
-        
-        rows = cur.fetchall()
         
 def select_transacciones_obra(obra_id):
     database = "database/trialdb.db"
@@ -146,24 +147,3 @@ def get_rubros_obra(obra_id):
         rta = tuple(rta)
         return rta
     
-def main():
-    database = "database/trialdb.db"
- 
-    # create a database connection
-    conn = create_connection(database)
-    with conn:
-        # create a new project
-        project = ('Cool App with SQLite & Python', '2015-01-01', '2015-01-30');
-        project_id = create_project(conn, project)
- 
-        # tasks
-        task_1 = ('Analyze the requirements of the app', 1, 1, project_id, '2015-01-01', '2015-01-02')
-        task_2 = ('Confirm with user about the top requirements', 1, 1, project_id, '2015-01-03', '2015-01-05')
- 
-        # create tasks
-        create_task(conn, task_1)
-        create_task(conn, task_2)
- 
- 
-#if __name__ == '__main__':
-    #main()

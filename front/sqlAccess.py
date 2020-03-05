@@ -125,7 +125,6 @@ def select_all_obras():
     
 def get_obra(elid):
     database ="database/trialdb.db"
-    
     # create a database connection
     conn = create_connection(database)
     with conn:
@@ -133,9 +132,10 @@ def get_obra(elid):
         cur = conn.cursor()
         cur.execute(sql,(elid,))
         
+       
         temp = cur.fetchall()
         if len(temp) > 0:
-            return cur.fetchall()[0]
+            return temp[0]
         else :
             return temp
         
@@ -264,6 +264,19 @@ def get_rubro_by_nombre_obra(combo):
  
         rows = cur.fetchall()
         return rows[0][0]
+
+def get_nombre_rubro(eid):
+    database = "database/trialdb.db"
+ 
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM rubros WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,eid)
+ 
+        rows = cur.fetchall()
+        return rows[0][2]
     
 def update_presupuesto_rubro(presu,rubro):
     database ="database/trialdb.db"
@@ -276,6 +289,18 @@ def update_presupuesto_rubro(presu,rubro):
               WHERE id = ?'''
         cur = conn.cursor()
         cur.execute(sql, (presu,rubro))
+        conn.commit()
+
+def update_obra(combo):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = ' UPDATE obras SET '+ combo[0]+'= ? WHERE id = ?'
+        cur = conn.cursor()
+        combofinal = combo[1],combo[2]
+        cur.execute(sql, combofinal)
         conn.commit()
         
 def create_rubro(rubro):

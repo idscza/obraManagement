@@ -19,6 +19,7 @@ from matplotlib.backends.backend_tkagg import (
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -29,13 +30,25 @@ class main:
         self.master = None
         self.window = window
         self.window.title("Manejo de Obras")
-        self.window.geometry('960x500')
+        self.window.geometry('960x660')
         
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
 
-        #self.lbl = Label(window, text="  Bienvenidos al Manejador \n de Presupuestos de Obras",font=("Arial",20))
-        #self.lbl.grid(column=0, row=1)
+        self.lbljaja = Label(window, text="",font=("Arial",12))
+        self.lbljaja.grid(column=0, row=1, sticky =(N))
+        
+        self.lbljiji = Label(window, text="",font=("Arial",12))
+        self.lbljiji.grid(column=0, row=1, sticky =(S))
+       
+        '''fig = Figure(figsize=(3, 1), dpi=100)
+        t = np.arange(0, 3, .01)
+        fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
+
+        self.labeljiji = FigureCanvasTkAgg(fig, master=self.window)  # A tk.DrawingArea.
+        self.labeljiji.draw()
+        self.labeljiji.grid(column=0, row=1, sticky =(S))'''
+
         
         self.photo = Image.open("pic.png")
         self.thephoto = ImageTk.PhotoImage(self.photo)
@@ -49,7 +62,7 @@ class main:
         self.lbl2 = Label(window, text='         ')
         self.lbl2.grid(column=1,row=1)
     
-        self.txt = scrolledtext.ScrolledText(window,width=70,height=25)
+        self.txt = scrolledtext.ScrolledText(window,width=70,height=35)
         self.txt.grid(column=2, row=1)
     
         self.combo = Combobox(window,width=32)
@@ -65,7 +78,7 @@ class main:
         self.btn.grid(column=0, row=3, sticky = (W))
         
         self.btn7 = Button(window, text="Editar\nObra",state='disabled'
-                          ,command= lambda: self.ventana_agregar_o(Toplevel(self.window)))
+                          ,command= lambda: self.ventana_editar_o(Toplevel(self.window)))
         self.btn7.grid(column=0, row=3, sticky = (E))
         
         self.btn8 = Button(window, text="      Editar\nPresupuesto",state='disabled'
@@ -91,7 +104,7 @@ class main:
         self.btn4 = Button(window, text="        Ver Clientes         ",
                            command=lambda: self.ventana_agregar_t(Toplevel(self.window))
                                ,state='disabled')
-        self.btn4.grid(column=2, row=3)
+        #self.btn4.grid(column=2, row=3)
         
         self.btn5 = Button(window, text="Información Obra       ",
                            command=lambda: self.ventana_info_obra(Toplevel(self.window))
@@ -99,7 +112,7 @@ class main:
         self.btn5.grid(column=2, row=3, sticky = (E))
         
         self.btn6 = Button(window, text="Ver Gráficas                 ",
-                           command=lambda: self.ventana_agregar_t(Toplevel(self.window))
+                           command=lambda: self.ver_graficas(Toplevel(self.window))
                                ,state='disabled')
         self.btn6.grid(column=2, row=3, sticky = (W))
         
@@ -113,8 +126,8 @@ class main:
         self.cascada = Menu(self.menus,tearoff=0)
         self.cascada.add_command(label='Ver Clientes',
                     command=lambda: self.ventana_mostrar_c(Toplevel(self.window)))
-        self.cascada.add_command(label='Buscar Cliente',
-                    command=lambda: self.ventana_buscar_c(Toplevel(self.window)))
+        #self.cascada.add_command(label='Buscar Cliente',
+        #            command=lambda: self.ventana_buscar_c(Toplevel(self.window)))
         self.cascada.add_command(label='Agregar Cliente',
                     command=lambda: self.ventana_agregar_c(Toplevel(self.window)))
         self.cascada2 = Menu(self.menus,tearoff=0)
@@ -149,6 +162,7 @@ class main:
         self.combo['values'] = vals
         try:
             self.combo.current(0)
+            self.lbljaja["text"]= self.combo.get()
         except:
             pass
         self.btn2.state(['!disabled'])
@@ -169,6 +183,13 @@ class main:
         name = self.combo.get()
         self.actual_obra = name.split(".")[0].replace('.','')
         texto = self.txt
+        try:
+
+            obra = sql.get_obra(self.combo.get().split(".")[0])
+            self.lbljaja["text"]= self.combo.get() + '\n'+\
+                'Ciudad: ' + obra[2] + '\nDirección: ' + obra[3]
+        except:
+            pass
         corpus = ''
       
         corpus = name
@@ -180,10 +201,36 @@ class main:
             return
         
         synth = self.analizar_transacciones(trans,rubs)
+        estado = [0,0,0]
+        rc = {"Antes":[],"Durante":[],"Después":[]}
+        estado2 = {"Antes":[0,0],"Durante":[0,0],"Después":[0,0]}
+        for rub in rubs:
+            estado[2]+=rub[4]
+            if rub[3] != "Entrada":
+                rc[rub[3]].append(rub[0])
+                estado2[rub[3]][0]+=rub[4]
+        for tran in trans:
+            if tran[5]=="Entrada":
+                estado[0]+=tran[4]
+            elif tran[5]=="Salida":
+                estado[1]+=tran[4]
+                if tran[3] in rc["Antes"]:
+                    estado2["Antes"][1]+=tran[4]
+                elif tran[3] in rc["Durante"]:
+                    estado2["Durante"][1]+=tran[4]
+                elif tran[3] in rc["Después"]:
+                    estado2["Después"][1]+=tran[4]
+                
+
     
         for val in synth:
+            gen = ''
+            if val == "EGRESOS":
+                gen = '\tPresupuesto: '+str(estado[2])+ '\t Gastos:' + str(estado[1])
+            else:
+                gen = str(estado[0])
             corpus+= '\n----------------------------------------------------------------------'
-            corpus+= '\t\t\t\t    '+val
+            corpus+= '\t   '+val+ ' $' +  gen
             corpus+= '\n----------------------------------------------------------------------'
             dummy = synth[val]
             if val == "INGRESOS":
@@ -194,8 +241,9 @@ class main:
                     corpus+= str(dummy[damn])
             if val == "EGRESOS":
                 for goddamn in dummy:
+                    gen = '\tPresupuesto: '+str(estado2[goddamn][0])+ '\t Gastos:' + str(estado2[goddamn][1])
                     corpus+= '\n----------------------------------------------------------------------'
-                    corpus+= '\t\t\t\t    '+goddamn
+                    corpus+= '\t    '+goddamn+ ' $'+gen
                     corpus+= '\n----------------------------------------------------------------------' 
                     for porfin in dummy[goddamn]:
                         corpus+= '\n'
@@ -208,10 +256,24 @@ class main:
 
         texto.delete(1.0,END)
         texto.insert(INSERT,corpus)
+        
+        fig = plt.figure(figsize=(4.7,2.5))
+        
+        objects = ('Ingresos','Gasto','Presupuesto')
+        y_pos = np.arange(len(objects))
+        
+        plt.bar(y_pos, estado, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('$')
+        plt.title('Estado de la Obra')
+        
+        self.labeljiji = FigureCanvasTkAgg(fig, master=self.window)  # A tk.DrawingArea.
+        self.labeljiji.draw()
+        self.labeljiji.get_tk_widget().grid(column=0, row=1, sticky =(S))
+        
     
     def analizar_transacciones(self,listat,listar):
         
-        print(listar)
         
         xd = {"INGRESOS":{},
               "EGRESOS":{
@@ -343,6 +405,31 @@ class main:
         self.actualizar_valores()
         messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
         
+    def editar_obra(self,nombre,valor):
+        
+        translate = {'Nombre':'nombre',
+                     'Ciudad':'ciudad',
+                     'Dirección':'direccion',
+                     'Encargado':'encargado',
+                     'Certificado Libertad':'cer_lib',
+                     'Licencia de Construccion':'licencia', 
+                     'Apartamentos Disponibles':'disponibles',
+                     'Información Adicional':'info_extra'}
+        if translate[nombre] == "disponibles":
+            try:
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                valor = float(elvalor)
+            except:
+                messagebox.showerror('Error', 'Ingrese un valor numerico para el nuevo Presupuesto')
+                return False
+        sql.update_obra((translate[nombre],valor,self.actual_obra))
+        self.cargar_obras()
+        self.actualizar_valores()
+        messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
+        return True
+        
     def verificar_dinero(self,facturas, valor):
         suma = 0
         gasto = 0
@@ -457,7 +544,7 @@ class main:
                 if trans[5]=="Entrada":
                     estado[0][0]+=trans[4]
                     estado[i+1][1]+=trans[4]
-                elif trans[5]=="Gasto":
+                elif trans[5]=="Salida":
                     estado[0][1]+=trans[4]
                     estado[i+1][3]+=trans[4]                    
             for rub in temp2:
@@ -472,7 +559,7 @@ class main:
             self.master.destroy()
             
         self.master = master
-        self.master.geometry("370x170")
+        self.master.geometry("370x240")
         self.frame = Frame(self.master)
         
         def close_window(self):
@@ -494,15 +581,36 @@ class main:
             self.lblq = Label(self.frame,text="Ciudad: "+data[2],font=("Arial",12))
             self.lblr = Label(self.frame,text="Direccion: "+data[3],font=("Arial",12))
             self.lbls = Label(self.frame,text="Ingeniero Encargado: "+data[4],font=("Arial",12))
-            self.lblu = Label(self.frame,text="Aptos Disponibles: "+data[7],font=("Arial",12))
+            self.lblcl = Label(self.frame,text="Certificado Libertad: "+data[7],font=("Arial",12))
+            self.lbllic = Label(self.frame,text="Licencia: "+data[8],font=("Arial",12))
+            self.lblu = Label(self.frame,text="Apartamentos Disponibles: "+str(data[9]),font=("Arial",12))
             self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
-                          +data[6],font=("Arial",10))      
+                          +data[6],font=("Arial",11))
+
+            temp = sql.select_transacciones_obra(self.actual_obra)
+            temp2 = sql.select_rubros_obra(self.actual_obra)
+            estado = [0,0,0]
+            for trans in temp:
+                if trans[5]=="Entrada":
+                    estado[0]+=trans[4]
+                elif trans[5]=="Salida":
+                    estado[1]+=trans[4]                    
+            for rub in temp2:
+                estado[2]+=rub[4]
+            self.lblest = Label(self.frame,text = "Presupuesto: $" +
+                                str(estado[2])+ "\nEntradas: $" +
+                                str(estado[0])+ "\nSalidas: $" +
+                                str(estado[1]),font=("Arial",12))    
+            
             self.lblp.pack()
             self.lblq.pack()
             self.lblr.pack()
             self.lbls.pack()
+            self.lblcl.pack()
+            self.lbllic.pack()
             self.lblu.pack()
             self.lblt.pack()
+            self.lblest.pack()
             self.quit.pack()
             self.master.resizable(False, False)
             self.frame.pack()    
@@ -666,9 +774,9 @@ class main:
         self.vsb.pack(side='right', fill='y')
         self.vista.configure(yscrollcommand=self.vsb.set)
         
-        self.vista.heading("#0", text="Obra")
-        self.vista.heading("td", text="Valor")
-        self.vista.heading("id", text="Tipo")
+        self.vista.heading("#0", text="Nombre")
+        self.vista.heading("td", text="Tipo de Documento")
+        self.vista.heading("id", text="Documento")
 
         cl = sql.select_all_clientes()
         for i in cl:
@@ -790,6 +898,7 @@ class main:
             self.btn6.state(['disabled'])
             self.btn7.state(['disabled'])
             self.btn8.state(['disabled'])
+            self.lbljaja["text"]=''
             if self.master != None:
                 self.master.destroy()
             
@@ -867,7 +976,7 @@ class main:
         self.entrg = Entry(self.frame,width=35)
         self.lblh = Label(self.frame,text="Licencia de Construcción",font=("Arial",10))
         self.entrh = Entry(self.frame,width=35)
-        self.lbli = Label(self.frame,text="Info Adicional",font=("Arial",10))
+        self.lbli = Label(self.frame,text="Información Adicional",font=("Arial",10))
         self.entri = Entry(self.frame,width=35)
         self.agregar = Button(self.frame, text = "Agregar",
                               command = lambda: agregar_la_obra(self,
@@ -1088,7 +1197,7 @@ class main:
             self.cbb.current(0)
             self.lblu = Label(self.frame,text="Ingrese Nuevo Presupuesto",font=("Arial",10))
             self.entru = Entry(self.frame,width=35)
-            self.agregar = Button(self.frame, text = "Agregar", 
+            self.agregar = Button(self.frame, text = "Editar", 
                               command = lambda: cam_presu(self,
                                                               self.cbb,
                                                               self.entru))
@@ -1102,6 +1211,59 @@ class main:
             self.agregar.pack(side = "right")
             self.master.resizable(False, False)
             self.frame.pack()
+    
+    #Ventana editar obra
+    def ventana_editar_o(self,master):
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x150")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()  
+        
+        def cam_obr(self,nombre,valor):
+            if  main.editar_obra(self,
+                                 nombre.get(),
+                                 valor.get()) :
+                self.master.destroy() 
+        self.quit = Button(self.frame, text = " Cancelar ", 
+                           command = lambda : close_window(self))
+        
+        if self.actual_obra == '':
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        
+        else:
+        
+            self.lbly = Label(self.frame,text="Seleccionar elemento",font=("Arial",10))
+            self.cbb = Combobox(self.frame,width=32)
+            self.cbb['values'] = ('Nombre','Ciudad','Dirección'
+                                'Encargado','Certificado Libertad',
+                                'Licencia de Construccion', 'Apartamentos Disponibles',
+                                'Información Adicional')
+            self.cbb.current(0)
+            self.lblu = Label(self.frame,text="Ingrese Nuevo Valor",font=("Arial",10))
+            self.entru = Entry(self.frame,width=35)
+            self.agregar = Button(self.frame, text = "Aceptar", 
+                              command = lambda: cam_obr(self,
+                                                              self.cbb,
+                                                              self.entru))
+            self.blank = Label(self.frame,text=" ")
+            self.lbly.pack()
+            self.cbb.pack()
+            self.lblu.pack()
+            self.entru.pack()
+            self.blank.pack()
+            self.quit.pack(side = "left")
+            self.agregar.pack(side = "right")
+            self.master.resizable(False, False)
+            self.frame.pack()       
         
     #Ventana para ver Historial Facturas
     def ventana_mostrar_f(self,master):
@@ -1135,9 +1297,9 @@ class main:
             tr = sql.select_transacciones_obra(self.actual_obra)
         for i in tr:
 
-            asociador = sql.get_nombre_rubro((i[3],))
+            nombre = sql.get_nombre_rubro((i[3],))
 
-            self.vista.insert("",END,text=i[0],values=(i[3],
+            self.vista.insert("",END,text=i[0],values=(nombre,
                               i[5],
                               i[4],
                               sql.get_name_by_user(i[2])))
@@ -1147,6 +1309,112 @@ class main:
         self.frame.pack()
                                    
     #Ventana para ver graficas de obra
+    
+    def  ver_graficas(self,master):
+        if self.master != None:
+            self.master.destroy()
+        self.master = master
+        self.frame = Frame(self.master)
+                    
+        trans = sql.select_transacciones_obra(self.actual_obra)
+        rubs = sql.select_rubros_obra(self.actual_obra)
+        
+        synth = self.analizar_transacciones(trans,rubs)
+        
+        
+        
+        def graph_1():
+            
+            self.labelji = ''
+            fig1 = plt.figure(figsize=(6,5))
+            plt.clf()
+            fig1 = plt.figure(figsize=(6,5))
+            labels=list(synth["INGRESOS"].keys())
+            sizes=list(synth["INGRESOS"].values())
+            colors = ['gold', 'lightcoral', 'lightskyblue']
+    
+        
+            plt.pie(sizes, labels=labels, colors=colors,
+                    autopct='%1.1f%%', shadow=True, startangle=140)
+
+            plt.axis('equal')
+            plt.title('Repartición de Ingresos')
+
+            self.labelji = FigureCanvasTkAgg(fig1, master=self.master)  # A tk.DrawingArea.
+            self.labelji.draw()
+            self.labelji.get_tk_widget().grid(column=0, row=0)
+            
+        def graph_2():
+            
+            self.labeljii = ''
+            fig = plt.figure(figsize=(6,5))
+            plt.clf()
+            estado = [0,0,0]
+            rc = {"Antes":[],"Durante":[],"Después":[]}
+            estado2 = {"Antes":[0,0],"Durante":[0,0],"Después":[0,0]}
+            for rub in rubs:
+                estado[2]+=rub[4]
+                if rub[3] != "Entrada":
+                    rc[rub[3]].append(rub[0])
+                    estado2[rub[3]][0]+=rub[4]
+            for tran in trans:
+                if tran[5]=="Entrada":
+                    estado[0]+=tran[4]
+                elif tran[5]=="Salida":
+                    estado[1]+=tran[4]
+                    if tran[3] in rc["Antes"]:
+                        estado2["Antes"][1]+=tran[4]
+                    elif tran[3] in rc["Durante"]:
+                        estado2["Durante"][1]+=tran[4]
+                    elif tran[3] in rc["Después"]:
+                        estado2["Después"][1]+=tran[4]
+            
+            n_groups = 3
+            presupuestos = (estado2["Antes"][0], estado2["Durante"][0], estado2["Después"][0])
+            gastos = (estado2["Antes"][1], estado2["Durante"][1], estado2["Después"][1])
+
+            fig, ax = plt.subplots()
+            index = np.arange(n_groups)
+            bar_width = 0.35
+            opacity = 0.8
+
+            rects1 = plt.bar(index, presupuestos, bar_width,
+                             alpha=opacity,
+                             color='b',
+                             label='Presupuesto')
+
+            rects2 = plt.bar(index + bar_width, gastos, bar_width,
+                             alpha=opacity,
+                             color='r',
+                             label='Gastos')
+
+            plt.xlabel('Person')
+            plt.ylabel('Dinero')
+            plt.title('Presupuesto vs Gastos')
+            plt.xticks(index + bar_width, ('A', 'B', 'C', 'D'))
+            plt.legend()
+            
+            plt.tight_layout()
+            
+            self.labeljii = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
+            self.labeljii.draw()
+            self.labeljii.get_tk_widget().grid(column=0, row=1)
+
+
+        def _quit():
+                    # stops mainloop
+            self.master.destroy()  # this is necessary on Windows to prevent
+                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+
+        if self.actual_obra != '':
+            graph_1()
+            graph_2()
+        
+        self.buttoon = Button(self.frame, text="Salir", command=_quit)
+        self.buttoon.grid(column=0, row=2, sticky =(W))
+        self.master.resizable(False, False)
+        #self.frame.pack()
+   
     
 
 root = Tk()

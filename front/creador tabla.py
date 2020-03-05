@@ -50,10 +50,12 @@ def main():
                                     ); """
 
     crear_clientes = """ CREATE TABLE IF NOT EXISTS clientes (
-                                        id integer PRIMARY KEY,
                                         nombre text NOT NULL,
-                                        telefono text NOT NULL,
-                                        direccion text NOT NULL
+                                        tipo_documento text NOT NULL,
+                                        documento text PRIMARY KEY,
+                                        correo text,
+                                        telefono text,
+                                        direccion text
                                     ); """
  
     crear_obras = """CREATE TABLE IF NOT EXISTS obras (
@@ -61,21 +63,37 @@ def main():
                                     nombre text NOT NULL,
                                     ciudad text NOT NULL,
                                     direccion text NOT NULL,
-                                    encargado text NOT NULL,
+                                    encargado text,
                                     begin_date text NOT NULL,
-                                    end_date text NOT NULL
+                                    end_date text NOT NULL,
+                                    cer_lib text,
+                                    licencia text,
+                                    disponibles integer,
+                                    info_extra text
                                 );"""
+    
+    crear_rubros = """ CREATE TABLE IF NOT EXISTS rubros (
+                                        id integer PRIMARY KEY,
+                                        obra_id integer NOT NULL,
+                                        nombre text NOT NULL,
+                                        tipo text NOT NULL,
+                                        presupuesto real,
+                                        FOREIGN KEY (obra_id) REFERENCES obras (id)
+                                    ); """
+    
     
     crear_transacciones = """CREATE TABLE IF NOT EXISTS transacciones (
                                     id integer PRIMARY KEY,
                                     obra_id integer NOT NULL,
                                     responsable text NOT NULL,
-                                    rubro text NOT NULL,
+                                    rubro_id id NOT NULL,
                                     valor real NOT NULL,
                                     tipo text NOT NULL,
-                                    presupuestado text NOT NULL,
+                                    cliente_id integer,
                                     FOREIGN KEY (obra_id) REFERENCES obras (id),
-                                    FOREIGN KEY (responsable) REFERENCES users (user)
+                                    FOREIGN KEY (rubro_id) REFERENCES rubros (id),
+                                    FOREIGN KEY (responsable) REFERENCES users (user),
+                                    FOREIGN KEY (cliente_id) REFERENCES clientes (id)
                                 );"""
  
     # create a database connection
@@ -89,11 +107,14 @@ def main():
         # create obras
         create_table(conn, crear_obras)
         
+        # create obras
+        create_table(conn, crear_rubros)
+        
+        #create clientes
+        create_table(conn, crear_clientes)
+        
         # create transacciones
         create_table(conn, crear_transacciones)
-        
-        # create clientes
-        #create_table(conn crear_clientes)
         
     else:
         print("Error! cannot create the database connection.")

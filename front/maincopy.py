@@ -25,9 +25,11 @@ import numpy as np
 
 class main:
     def __init__(self,window):
+        
+        self.master = None
         self.window = window
-        self.window.title("Manejo de Presupuesto")
-        self.window.geometry('960x270')
+        self.window.title("Manejo de Obras")
+        self.window.geometry('960x500')
         
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
@@ -47,7 +49,7 @@ class main:
         self.lbl2 = Label(window, text='         ')
         self.lbl2.grid(column=1,row=1)
     
-        self.txt = scrolledtext.ScrolledText(window,width=70,height=10)
+        self.txt = scrolledtext.ScrolledText(window,width=70,height=25)
         self.txt.grid(column=2, row=1)
     
         self.combo = Combobox(window,width=32)
@@ -60,7 +62,15 @@ class main:
     
         self.btn = Button(window, text="Agregar\n  Obra",state='disabled'
                           ,command= lambda: self.ventana_agregar_o(Toplevel(self.window)))
-        self.btn.grid(column=0, row=3)
+        self.btn.grid(column=0, row=3, sticky = (W))
+        
+        self.btn7 = Button(window, text="Editar\nObra",state='disabled'
+                          ,command= lambda: self.ventana_agregar_o(Toplevel(self.window)))
+        self.btn7.grid(column=0, row=3, sticky = (E))
+        
+        self.btn8 = Button(window, text="      Editar\nPresupuesto",state='disabled'
+                          ,command= lambda: self.ventana_editar_p(Toplevel(self.window)))
+        self.btn8.grid(column=0, row=3)
     
         self.btn1 = Button(window, text="Agregar Rubro            ",
                            command = lambda: self.ventana_agregar_r(Toplevel(self.window)),
@@ -95,15 +105,27 @@ class main:
         
         self.menus = Menu(window)
  
-        self.new_item = Menu(self.menus)
         
         self.menus.add_command(label='Iniciar Sesión',
                     command=lambda: self.ventana_iniciar(Toplevel(self.window)))
         self.menus.add_command(label='Estado General',state='disabled',
-                    command=lambda: self.ventana_estadogeneral(Toplevel(self.window)))
-        
+                    command=lambda: self.ventana_estadogeneral(Toplevel(self.window)))     
+        self.cascada = Menu(self.menus,tearoff=0)
+        self.cascada.add_command(label='Ver Clientes',
+                    command=lambda: self.ventana_mostrar_c(Toplevel(self.window)))
+        self.cascada.add_command(label='Buscar Cliente',
+                    command=lambda: self.ventana_buscar_c(Toplevel(self.window)))
+        self.cascada.add_command(label='Agregar Cliente',
+                    command=lambda: self.ventana_agregar_c(Toplevel(self.window)))
+        self.cascada2 = Menu(self.menus,tearoff=0)
+        self.cascada2.add_command(label='Cambiar Nombre',
+                    command=lambda: self.ventana_editar_nombre(Toplevel(self.window)))
+        self.cascada2.add_command(label='Cambiar Contraseña',
+                    command=lambda: self.ventana_editar_pw(Toplevel(self.window)))
+        self.menus.add_cascade(label='Clientes',state='disabled', menu=self.cascada)
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
+        self.menus.add_cascade(label='Editar Usuario',state='disabled', menu=self.cascada2)
         self.menus.add_command(label='Cerrar Sesión',state='disabled',
                                command = self.cerrar_sesion)
 
@@ -115,6 +137,8 @@ class main:
         messagebox.showinfo('Bienvenido','Sesión iniciada con éxito')
         self.menus.entryconfig('Iniciar Sesión',state='disabled')
         self.menus.entryconfig("Crear Usuario",state='normal')
+        self.menus.entryconfig("Editar Usuario",state='normal')
+        self.menus.entryconfig("Clientes",state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
@@ -130,9 +154,11 @@ class main:
         self.btn2.state(['!disabled'])
         self.btn1.state(['!disabled'])
         self.btn3.state(['!disabled'])
-        #self.btn4.state(['!disabled'])
+        self.btn4.state(['!disabled'])
         self.btn5.state(['!disabled'])
-        #self.btn6.state(['!disabled'])
+        self.btn6.state(['!disabled'])
+        self.btn7.state(['!disabled'])
+        self.btn8.state(['!disabled'])
         self.btn.state(['!disabled'])
        
         
@@ -147,49 +173,67 @@ class main:
       
         corpus = name
         
-        trans = sql.select_transacciones_obra(self.actual_obra)
+        try:
+            trans = sql.select_transacciones_obra(self.actual_obra)
+            rubs = sql.select_rubros_obra(self.actual_obra)
+        except:
+            return
         
-        synth = self.analizar_transacciones(trans)
+        synth = self.analizar_transacciones(trans,rubs)
     
         for val in synth:
             corpus+= '\n----------------------------------------------------------------------'
             corpus+= '\t\t\t\t    '+val
             corpus+= '\n----------------------------------------------------------------------'
             dummy = synth[val]
-            for damn in dummy:
-                corpus+= '\n'
-                corpus+= damn
-                corpus+=':  \t'
-                if type(dummy[damn]) != list:
+            if val == "INGRESOS":
+                for damn in dummy:
+                    corpus+= '\n'
+                    corpus+= damn
+                    corpus+=':  \t'
                     corpus+= str(dummy[damn])
-                else:
-                    corpus+='P: '
-                    corpus+= str(dummy[damn][0])
-                    corpus+='\tG: '
-                    corpus+= str(dummy[damn][1])               
+            if val == "EGRESOS":
+                for goddamn in dummy:
+                    corpus+= '\n----------------------------------------------------------------------'
+                    corpus+= '\t\t\t\t    '+goddamn
+                    corpus+= '\n----------------------------------------------------------------------' 
+                    for porfin in dummy[goddamn]:
+                        corpus+= '\n'
+                        corpus+= porfin
+                        corpus+=':  \t'
+                        corpus+='P: '
+                        corpus+= str(dummy[goddamn][porfin][0])
+                        corpus+='\tG: '
+                        corpus+= str(dummy[goddamn][porfin][1])               
 
         texto.delete(1.0,END)
         texto.insert(INSERT,corpus)
     
-    def analizar_transacciones(self,lista):
+    def analizar_transacciones(self,listat,listar):
+        
+        print(listar)
+        
         xd = {"INGRESOS":{},
-              "EGRESOS":{}}
-        for i in lista:
-            if i[5] == "Entrada":
-                if xd['INGRESOS'].get(i[3]) is None:
-                    xd['INGRESOS'][i[3]] = i[4]
-                else:
-                    xd['INGRESOS'][i[3]] += i[4]
-            elif i[5] == "Presupuesto":
-                xd['EGRESOS'][i[3]] = [i[4],0]
+              "EGRESOS":{
+                      "Antes":{},
+                      "Durante":{},
+                      "Después":{}
+                      }}
+        for j in listar:
+            if j[3] == "Entrada":
+                xd['INGRESOS'][j[2]] = 0
+                for i in listat:
+                    if j[0] == i[3]:
+                        xd['INGRESOS'][j[2]]+=i[4]
             else:
-                if xd['EGRESOS'].get(i[3]) is None:
-                    xd['EGRESOS'][i[3]] = [0,i[4]]
-                else:
-                    xd['EGRESOS'][i[3]][1] += i[4]
+                xd['EGRESOS'][j[3]][j[2]] = [j[4],0]
+                for i in listat:
+                    if j[0] == i[3]:
+                        xd['EGRESOS'][j[3]][j[2]][1]+=i[4]
+
         return xd
             
-    def agregar_obr(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca):
+    def agregar_obr(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,cerlib,lic,info):
         yd = {'ENE':1,'FEB':2,'MAR':3,'ABR':4,'MAY':5,'JUN':6,
              'JUL':7,'AGO':8,'SEP':9,'OCT':10,'NOV':11,'DIC':12}
         ini = main.validar_fecha(yd[fim],int(fid),int(fia))
@@ -202,27 +246,36 @@ class main:
         elif int(fca) == int(fia) and yd[fcm] == yd[fim] and int(fcd) <= int(fid):
             fat = True
         if not(ini and cul):
-            messagebox.showerror('Error', 'Las Fechas no son Válidas')
-            return
+            messagebox.showerror('Error', 'Las fechas no son válidas')
+            return False
         elif fat:
             messagebox.showerror('Error', 'La Obra no puede empezar después de terminar')
-            return
-        if nm.strip() == '' or ct.strip() == '' or dr.strip() == '' or ie.strip() == '':
-            messagebox.showerror('Error', 'La obra no puede registrarse con campos vacíos')
-            return
+            return False
+        if nm.strip() == '' or ct.strip() == '' or dr.strip() == '':
+            messagebox.showerror('Error', 'La obra no puede registrarse con nombre, ciudad o dirección vacíos')
+            return False
         fi = str(fid) + '-' + str(yd[fim]) + "-" + str(fia)
         fc = str(fcd) + '-' + str(yd[fcm]) + "-" + str(fca)
         try:
-            helper = sql.create_obra((nm,ct,dr,ie,fi,fc))
+            helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,0,info))
             messagebox.showinfo('Crear Obra','Obra creada con éxito')
-            sql.create_transaccion((helper,self.actual_user,"Inversionistas",0,"Entrada",0))
-            sql.create_transaccion((helper,self.actual_user,"Ventas",0,"Entrada",0))
-            sql.create_transaccion((helper,self.actual_user,"Préstamos",0,"Entrada",0))
-            #TODO Diversificar rubros de entrada
+            self.rubros_por_defecto(helper)
+            #TODO RUBROS DEFECTO
+
         except:
             messagebox.showerror('Error','La obra no pudo ser creada')
+            return False
         self.cargar_obras()
         self.actualizar_valores()
+        return True
+    
+    def rubros_por_defecto(self,helper):
+        sql.create_rubro((helper,"Inversionistas","Entrada",0))
+        sql.create_rubro((helper,"Ventas","Entrada",0))
+        sql.create_rubro((helper,"Préstamos","Entrada",0))
+        sql.create_rubro((helper,"Planos","Durante",0))
+        sql.create_rubro((helper,"Retorno Inversionistas","Después",0))
+        #TODO Diversificar rubros de entrada
         
     def validar_fecha(m,d,a):
         isValidDate = True
@@ -232,36 +285,22 @@ class main:
             isValidDate = False
         return isValidDate
     
-    def agregar_rub(self,nombre,valor,presupuestado):
+    def agregar_rub(self,nombre,tipo,valor):
         
-        hue = sql.select_transacciones_obra(self.actual_obra)
+        nombre = nombre.replace(":","")
+        hue = sql.select_rubros_obra(self.actual_obra)
         
         for fact in hue:
-            if nombre == fact[3]:
+            if nombre == fact[2]:
                 messagebox.showerror('Error','El rubro ya existe')
                 return
-        if presupuestado:
-            sql.create_transaccion((self.actual_obra,
-                                    self.actual_user,
+        sql.create_rubro((self.actual_obra,
                                     nombre,
-                                    valor,
-                                    'Presupuesto',
-                                    1))
-            messagebox.showinfo('Crear Rubro','Rubro creado con éxito')
-            self.actualizar_valores()
-        else:
-            sepuede = self.verificar_dinero(hue,valor)
-            if sepuede:
-                sql.create_transaccion((self.actual_obra,
-                                    self.actual_user,
-                                    nombre,
-                                    valor,
-                                    'Gasto',
-                                    0))            
-                messagebox.showinfo('Crear Rubro','Rubro creado con éxito')
-                self.actualizar_valores()
-            else:
-                messagebox.showerror('Error','El rubro excede el dinero disponible')
+                                    tipo,
+                                    valor))
+        messagebox.showinfo('Crear Rubro','Rubro creado con éxito')
+        self.actualizar_valores()
+
     
     def agregar_transac(self,nombre,valor):
         
@@ -270,29 +309,40 @@ class main:
         verify = nombre.split(": ")[0]
         realname = nombre.split(": ")[1]
         
+        asociador = sql.get_rubro_by_nombre_obra((realname,self.actual_obra))
+        
         if verify == "Entrada":
             sql.create_transaccion((self.actual_obra,
                                     self.actual_user,
-                                    realname,
+                                    asociador,
                                     valor,
-                                    'Entrada',
-                                    1))
-            messagebox.showinfo('Crear Rubro','Rubro creado con éxito')
+                                    'Entrada'
+                                    ))
+            messagebox.showinfo('Crear Transacción','Transacción creada con éxito')
             self.actualizar_valores()
         else:
             sepuede = self.verificar_dinero(hue,valor)
             if sepuede:
                 sql.create_transaccion((self.actual_obra,
                                     self.actual_user,
-                                    realname,
+                                    asociador,
                                     valor,
-                                    'Gasto',
-                                    0))            
-                messagebox.showinfo('Registrar Transacción','Factura creada con éxito')
+                                    'Salida'
+                                    ))            
+                messagebox.showinfo('Registrar Transacción','Transacción realizada con éxito')
                 self.actualizar_valores()
             else:
-                messagebox.showerror('Error','El rubro excede el dinero disponible')
-                
+                messagebox.showerror('Error','La transacción excede el dinero disponible')
+    
+    def cambiar_presupuesto(self,nombre,valor):
+        
+        realname = nombre.split(": ")[1]
+        
+        asociador = sql.get_rubro_by_nombre_obra((realname,self.actual_obra))
+        sql.update_presupuesto_rubro(valor,asociador)
+        self.actualizar_valores()
+        messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
+        
     def verificar_dinero(self,facturas, valor):
         suma = 0
         gasto = 0
@@ -309,6 +359,10 @@ class main:
     #Ventana para iniciar Sesión
     
     def ventana_iniciar(self, master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
         self.master.geometry("250x150")
         self.frame = Frame(self.master)
@@ -350,6 +404,10 @@ class main:
     #Ventana Estado General
     
     def ventana_estadogeneral(self,master):
+
+        if self.master != None:
+            self.master.destroy()        
+        
         self.master = master
         self.master.geometry("820x320")
         self.frame = Frame(self.master)
@@ -366,7 +424,6 @@ class main:
                            "   Egresos: $"+str(data[0][1]),font=("Arial",14)) 
         
         self.vista = Treeview(self.frame, columns = ("entrada", "presupuesto","gasto"))
-        facturas = sql.select_transacciones_obra(self.actual_obra) 
         
         self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
         self.vsb.pack(side='right', fill='y')
@@ -394,6 +451,7 @@ class main:
         for i in range(len(lista_obras)):
             mock = lista_obras[i].split(". ")
             temp = sql.select_transacciones_obra(mock[0])
+            temp2 = sql.select_rubros_obra(mock[0])
             estado.append([lista_obras[i],0,0,0])
             for trans in temp:
                 if trans[5]=="Entrada":
@@ -402,13 +460,17 @@ class main:
                 elif trans[5]=="Gasto":
                     estado[0][1]+=trans[4]
                     estado[i+1][3]+=trans[4]                    
-                elif trans[5]=="Presupuesto":
-                    estado[i+1][2]+=trans[4]
+            for rub in temp2:
+                estado[i+1][2]+=rub[4]
         return estado
     
     #Ventana info Obra
     
     def ventana_info_obra(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+            
         self.master = master
         self.master.geometry("370x170")
         self.frame = Frame(self.master)
@@ -420,25 +482,37 @@ class main:
                            command = lambda : close_window(self))       
         
         data = sql.get_obra(self.actual_obra)
-        self.lblp = Label(self.frame,text=data[1],font=("Arial",14))
-        self.lblq = Label(self.frame,text="Ciudad: "+data[2],font=("Arial",12))
-        self.lblr = Label(self.frame,text="Direccion: "+data[3],font=("Arial",12))
-        self.lbls = Label(self.frame,text="Ingeniero Encargado: "+data[4],font=("Arial",12))
-        #self.lblu = Label(self.frame,text="Aptos Disponibles: "+data[7],font=("Arial",12))
-        self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
+        
+        if len(data) ==0:
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        else:
+            self.lblp = Label(self.frame,text=data[1],font=("Arial",14))
+            self.lblq = Label(self.frame,text="Ciudad: "+data[2],font=("Arial",12))
+            self.lblr = Label(self.frame,text="Direccion: "+data[3],font=("Arial",12))
+            self.lbls = Label(self.frame,text="Ingeniero Encargado: "+data[4],font=("Arial",12))
+            self.lblu = Label(self.frame,text="Aptos Disponibles: "+data[7],font=("Arial",12))
+            self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
                           +data[6],font=("Arial",10))      
-        self.lblp.pack()
-        self.lblq.pack()
-        self.lblr.pack()
-        self.lbls.pack()
-        #self.lblu.pack()
-        self.lblt.pack()
-        self.quit.pack()
-        self.master.resizable(False, False)
-        self.frame.pack()    
+            self.lblp.pack()
+            self.lblq.pack()
+            self.lblr.pack()
+            self.lbls.pack()
+            self.lblu.pack()
+            self.lblt.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()    
         
     #Ventana para Agregar Usuario
     def ventana_nuevo_usuario(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
         self.master.geometry("250x230")
         self.frame = Frame(self.master)
@@ -489,6 +563,209 @@ class main:
         self.master.resizable(False, False)
         self.frame.pack()
     
+    #Ventana Editar Nombre
+    def ventana_editar_nombre(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x170")
+        self.frame = Frame(self.master)
+         
+        def close_window(self):
+            self.master.destroy()
+        
+        def editar_el_nuser(n1,n2):
+            if n1.get()!= n2.get():
+                messagebox.showerror('Error', 'Los nuevos nombres deben coincidir')
+            else:
+                sql.update_nuser(self.actual_user,n1.get())
+                messagebox.showinfo('Éxito','Se ha modificado su nombre')
+            self.master.destroy()
+        self.quit = Button(self.frame, text = " Cancelar ", 
+                           command = lambda : close_window(self))
+        thename = sql.get_name_by_user(self.actual_user)
+        self.actn = Label(self.frame,text = thename,font=("Arial",12))
+        self.lblnn = Label(self.frame,text="Nuevo Nombre",font=("Arial",10))
+        self.entrnn = Entry(self.frame,width=35)
+        self.lblnn2 = Label(self.frame,text="Confirme nuevo Nombre",font=("Arial",10))
+        self.entrnn2 = Entry(self.frame,width=35)
+        self.blank = Label(self.frame,text=" ")
+        self.agregar = Button(self.frame, text = "Cambiar", 
+                              command = lambda: editar_el_nuser(self.entrnn,
+                                                                self.entrnn2))
+        self.actn.pack()
+        self.lblnn.pack()
+        self.entrnn.pack()
+        self.lblnn2.pack()
+        self.entrnn2.pack()
+        self.blank.pack()
+        self.quit.pack(side = "left")
+        self.agregar.pack(side = "right")
+        self.master.resizable(False, False)
+        self.frame.pack()
+        
+    #Ventana Editar Contraseña
+    def ventana_editar_pw(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x140")
+        self.frame = Frame(self.master)
+         
+        def close_window(self):
+            self.master.destroy()
+        
+        def editar_el_puser(p1,p2):
+            if p1.get()!= p2.get():
+                messagebox.showerror('Error', 'Las nuevas contraseñas deben coincidir')
+            else:
+                sql.update_puser(self.actual_user,p1.get())
+                messagebox.showinfo('Éxito','Se ha modificado su contraseña')
+            self.master.destroy()
+        self.quit = Button(self.frame, text = " Cancelar ", 
+                           command = lambda : close_window(self))
+        self.lblp = Label(self.frame,text="Nueva Contraseña",font=("Arial",10))
+        self.entrp = Entry(self.frame,show="*",width=35)
+        self.lblp2 = Label(self.frame,text="Confirme nuevo Nombre",font=("Arial",10))
+        self.entrp2 = Entry(self.frame,show="*",width=35)
+        self.blank = Label(self.frame,text=" ")
+        self.agregar = Button(self.frame, text = "Cambiar", 
+                              command = lambda: editar_el_puser(self.entrp,
+                                                                self.entrp2))
+        self.lblp.pack()
+        self.entrp.pack()
+        self.lblp2.pack()
+        self.entrp2.pack()
+        self.blank.pack()
+        self.quit.pack(side = "left")
+        self.agregar.pack(side = "right")
+        self.master.resizable(False, False)
+        self.frame.pack()
+    
+    #Ventana Ver Clientes
+    def ventana_mostrar_c(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("620x260")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()      
+        
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        self.vista = Treeview(self.frame, columns = ("td", "id"))
+        self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
+        self.vsb.pack(side='right', fill='y')
+        self.vista.configure(yscrollcommand=self.vsb.set)
+        
+        self.vista.heading("#0", text="Obra")
+        self.vista.heading("td", text="Valor")
+        self.vista.heading("id", text="Tipo")
+
+        cl = sql.select_all_clientes()
+        for i in cl:
+            self.vista.insert("",END,text=i[0],values=(i[1],i[2]))
+        self.vista.pack()
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()
+    
+    #Ventana Buscar Cliente
+    def ventana_buscar_c(self,master):
+            
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("620x300")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()      
+        def actualizar():
+            pass
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        
+        
+    
+    #Ventana Agregar Clientes
+    def ventana_agregar_c(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x320")
+        self.frame = Frame(self.master)
+         
+        def close_window(self):
+            self.master.destroy()
+        
+        def agregar_el_cliente(n,td,doc,ce,tel,dirc):
+            trial = sql.select_all_clientes()
+            docs = []
+            for i in trial:
+                docs.append(i[2])
+            if doc.get() in docs:
+                messagebox.showerror('Error', 'Ya existe un cliente con este documento')
+            elif n.get() == '' or td.get() == '' or doc.get() == '' :
+                messagebox.showerror('Error', 'El nombre y documento no deben ser vacíos')
+            else:
+                sql.create_cliente((n.get(),td.get(),doc.get(),ce.get(),tel.get(),dirc.get()))
+                messagebox.showinfo('Éxito','Se ha agregado el cliente')
+                self.master.destroy()
+        self.quit = Button(self.frame, text = " Cancelar ", 
+                           command = lambda : close_window(self))
+        self.lbltit = Label(self.frame,text="Ingrese los Datos",font=("Arial",12))
+        self.lbln = Label(self.frame,text="Nombre",font=("Arial",10))
+        self.entrn = Entry(self.frame,width=35)
+        self.lbltd = Label(self.frame,text="Tipo de Documento",font=("Arial",10))
+        self.entrtd = Entry(self.frame,width=35)
+        self.lbld = Label(self.frame,text="Documento",font=("Arial",10))
+        self.entrd = Entry(self.frame,width=35)
+        self.lblce = Label(self.frame,text="Correo Electrónico",font=("Arial",10))
+        self.entrce = Entry(self.frame,width=35)
+        self.lblt = Label(self.frame,text="Teléfono",font=("Arial",10))
+        self.entrt = Entry(self.frame,width=35)
+        self.lbltdr = Label(self.frame,text="Dirección",font=("Arial",10))
+        self.entrtdr = Entry(self.frame,width=35)
+        self.blank = Label(self.frame,text=" ")
+        self.agregar = Button(self.frame, text = "Registrar", 
+                              command = lambda: agregar_el_cliente(self.entrn,
+                                                                self.entrtd,
+                                                                self.entrd,
+                                                                self.entrce,
+                                                                self.entrt,
+                                                                self.entrtdr))
+        self.lbltit.pack()
+        self.lbln.pack()
+        self.entrn.pack()
+        self.lbltd.pack()
+        self.entrtd.pack()
+        self.lbld.pack()
+        self.entrd.pack()
+        self.lblce.pack()
+        self.entrce.pack()
+        self.lblt.pack()
+        self.entrt.pack()
+        self.lbltdr.pack()
+        self.entrtdr.pack()
+        self.blank.pack()
+        self.quit.pack(side = "left")
+        self.agregar.pack(side = "right")
+        self.master.resizable(False, False)
+        self.frame.pack()    
+    
+    
     #Ventana para Cerrar Sesión
     def cerrar_sesion(self):
         choice = messagebox.askyesno(title="Cerrar Sesión", message="¿Desea Cerrar Sesión?")
@@ -496,7 +773,9 @@ class main:
             self.menus.entryconfig('Iniciar Sesión',state='normal')
             self.menus.entryconfig("Crear Usuario",state='disabled')
             self.menus.entryconfig("Cerrar Sesión",state='disabled')
+            self.menus.entryconfig("Editar Usuario",state='disabled')
             self.menus.entryconfig("Estado General",state='disabled')
+            self.menus.entryconfig("Clientes",state='disabled')
             self.actual_user = ''
             self.actual_obra = 0
             self.txt.delete(1.0,END)
@@ -505,20 +784,32 @@ class main:
             self.btn2.state(['disabled'])
             self.btn1.state(['disabled'])
             self.btn.state(['disabled'])
-            self.btn3.state(['!disabled'])
+            self.btn3.state(['disabled'])
+            self.btn4.state(['disabled'])
+            self.btn5.state(['disabled'])
+            self.btn6.state(['disabled'])
+            self.btn7.state(['disabled'])
+            self.btn8.state(['disabled'])
+            if self.master != None:
+                self.master.destroy()
+            
             
     #Ventana para Agregar Obra
     
     def ventana_agregar_o(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
-        self.master.geometry("250x300")
+        self.master.geometry("250x435")
         self.frame = Frame(self.master)
           
         def close_window(self):
             self.master.destroy()
         
-        def agregar_la_obra(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca):
-            main.agregar_obr(self,nm.get(),
+        def agregar_la_obra(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,crlib,licon,info):
+            sepudo = main.agregar_obr(self,nm.get(),
                              ct.get(),
                              dr.get(),
                              ie.get(),
@@ -527,8 +818,12 @@ class main:
                              fia.get(),
                              fcm.get(),
                              fcd.get(),
-                             fca.get())
-            self.master.destroy()
+                             fca.get(),
+                             crlib.get(),
+                             licon.get(),
+                             info.get())
+            if sepudo:
+                self.master.destroy()
             
         self.quit = Button(self.frame, text = " Salir ",
                            command = lambda : close_window(self))
@@ -538,7 +833,7 @@ class main:
         self.entrb = Entry(self.frame,width=35)
         self.lblc = Label(self.frame,text="Dirección",font=("Arial",10))
         self.entrc = Entry(self.frame,width=35)
-        self.lbld = Label(self.frame,text="Ingeniero Encargado",font=("Arial",10))
+        self.lbld = Label(self.frame,text="Encargado",font=("Arial",10))
         self.entrd = Entry(self.frame,width=35)
         self.lble = Label(self.frame,text="Fecha Inicio",font=("Arial",10))
         self.combe1 = Combobox(self.frame,width=8)        
@@ -568,6 +863,12 @@ class main:
                                   2024,2025,2026,2027,2028,2029,2030,2031,2032,
                                   2033,2034,2035)
         self.combf3.current(0)
+        self.lblg = Label(self.frame,text="Certificado de Libertad",font=("Arial",10))
+        self.entrg = Entry(self.frame,width=35)
+        self.lblh = Label(self.frame,text="Licencia de Construcción",font=("Arial",10))
+        self.entrh = Entry(self.frame,width=35)
+        self.lbli = Label(self.frame,text="Info Adicional",font=("Arial",10))
+        self.entri = Entry(self.frame,width=35)
         self.agregar = Button(self.frame, text = "Agregar",
                               command = lambda: agregar_la_obra(self,
                                                                 self.entra,
@@ -579,7 +880,10 @@ class main:
                                                                 self.combe3,
                                                                 self.combf1,
                                                                 self.combf2,
-                                                                self.combf3)) 
+                                                                self.combf3,
+                                                                self.entrg,
+                                                                self.entrh,
+                                                                self.entri)) 
         self.blank = Label(self.frame,text=" ")
         self.lbla.grid(column=0,row=0)
         self.entra.grid(column=0,row=1)
@@ -597,59 +901,92 @@ class main:
         self.combf1.grid(column=0,row=11, sticky = (W))
         self.combf2.grid(column=0,row=11)
         self.combf3.grid(column=0,row=11, sticky = (E))
-        self.blank.grid(column=0,row=12)
-        self.quit.grid(column=0,row=13, sticky = (W))
-        self.agregar.grid(column=0,row=13, sticky = (E))
+        self.lblg.grid(column=0,row=12)
+        self.entrg.grid(column=0,row=13)
+        self.lblh.grid(column=0,row=14)
+        self.entrh.grid(column=0,row=15)
+        self.lbli.grid(column=0,row=16)
+        self.entri.grid(column=0,row=17)
+        self.blank.grid(column=0,row=18)
+        self.quit.grid(column=0,row=19, sticky = (W))
+        self.agregar.grid(column=0,row=19, sticky = (E))
         self.master.resizable(False, False)
         self.frame.pack()        
     
     #Ventana para Agregar Rubro
     
     def ventana_agregar_r(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("250x200")
         self.frame = Frame(self.master)
         self.huh = IntVar()
           
         def close_window(self):
             self.master.destroy()      
         
-        def agregar_el_rubro(self,nombre,valor,presu):
+        def agregar_el_rubro(self,nombre,valor,tipo):
+            
+            if nombre.get().strip() == '':            
+                messagebox.showerror('Error', 'Ingrese un nombre válido para el rubro') 
             try:
-                float(valor.get())
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                float(elvalor)
                 main.agregar_rub(self,
                                  nombre.get(),
-                                 float(valor.get()),
-                                 presu.get())
+                                 tipo.get(),
+                                 float(elvalor))
                 self.master.destroy()
             except:
                 messagebox.showerror('Error', 'Ingrese un valor númerico para el valor del rubro')      
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
-        self.lblm = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",10))
-        self.entrm = Entry(self.frame,width=35)
-        self.lbln = Label(self.frame,text="Ingrese Presupuesto",font=("Arial",10))
-        self.entrn = Entry(self.frame,width=35)
-        self.checkbox = Checkbutton(self.frame, text="¿El rubro fue presupuestado?",
-                                    variable=self.huh)
-        self.agregar = Button(self.frame, text = "Agregar",
+        if self.actual_obra == '':
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        
+        else:
+            self.lblm = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",10))
+            self.entrm = Entry(self.frame,width=35)
+            self.lbln = Label(self.frame,text="Ingrese Presupuesto",font=("Arial",10))
+            self.entrn = Entry(self.frame,width=35)
+            self.lblti = Label(self.frame,text="Seleccione Tipo Rubro",font=("Arial",10))
+            self.blank = Label(self.frame,text=" ",font=("Arial",10))
+            self.combru = Combobox(self.frame,width=32)
+            self.combru['values'] = ("Antes","Durante","Después")
+            self.combru.current(0)
+            self.agregar = Button(self.frame, text = "Agregar",
                               command = lambda: agregar_el_rubro(self,
                                                                  self.entrm,
                                                                  self.entrn,
-                                                                 self.huh))
-        self.lblm.pack()
-        self.entrm.pack()
-        self.lbln.pack()
-        self.entrn.pack()
-        self.checkbox.pack()
-        self.quit.pack(side = "left")
-        self.agregar.pack(side = "right")
-        self.master.resizable(False, False)
-        self.frame.pack()
+                                                                 self.combru))
+            self.lblm.pack()
+            self.entrm.pack()
+            self.lbln.pack()
+            self.entrn.pack()
+            self.lblti.pack()
+            self.combru.pack()
+            self.blank.pack()
+            self.quit.pack(side = "left")
+            self.agregar.pack(side = "right")
+            self.master.resizable(False, False)
+            self.frame.pack()
 
     
     #Ventana para Agregar Transacción
     def ventana_agregar_t(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
         self.master.geometry("250x150")
         self.frame = Frame(self.master)
@@ -659,40 +996,119 @@ class main:
         
         def agregar_trans(self,nombre,valor):
             try:
-                float(valor.get())
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                float(elvalor)
                 main.agregar_transac(self,
                                  nombre.get(),
-                                 float(valor.get()))
+                                 float(elvalor))
                 self.master.destroy()
             except:
-                messagebox.showerror('Error', 'Ingrese un valor númerico para el valor del rubro') 
+                messagebox.showerror('Error', 'Ingrese un valor númerico para el valor de la transacción') 
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
-        self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
         
-        self.cbb = Combobox(self.frame,width=32)
-        self.cbb['values'] = sql.get_rubros_obra(self.actual_obra)
-        self.cbb.current(0)
-        self.lblu = Label(self.frame,text="Ingrese Nueva Factura",font=("Arial",10))
-        self.entru = Entry(self.frame,width=35)
-        self.agregar = Button(self.frame, text = "Agregar", 
+        if self.actual_obra == '':
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        
+        else:
+        
+            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
+            self.cbb = Combobox(self.frame,width=32)
+            self.cbb['values'] = sql.get_rubros_obra(self.actual_obra)
+            self.cbb.current(0)
+            self.lblu = Label(self.frame,text="Ingrese Nueva Transacción",font=("Arial",10))
+            self.entru = Entry(self.frame,width=35)
+            self.agregar = Button(self.frame, text = "Agregar", 
                               command = lambda: agregar_trans(self,
                                                               self.cbb,
                                                               self.entru))
-        self.blank = Label(self.frame,text=" ")
-        self.lbly.pack()
-        self.cbb.pack()
-        self.lblu.pack()
-        self.entru.pack()
-        self.blank.pack()
-        self.quit.pack(side = "left")
-        self.agregar.pack(side = "right")
-        self.master.resizable(False, False)
-        self.frame.pack()
-  
+            self.blank = Label(self.frame,text=" ")
+            self.lbly.pack()
+            self.cbb.pack()
+            self.lblu.pack()
+            self.entru.pack()
+            self.blank.pack()
+            self.quit.pack(side = "left")
+            self.agregar.pack(side = "right")
+            self.master.resizable(False, False)
+            self.frame.pack()
+       
+    #Ventana cambiar presupuesto    
+    def ventana_editar_p(self,master):
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x150")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()  
+            
+        def quitar_entradas(lista):
+            lista1 = []
+            for i in lista:
+                if i.split(": ")[0] != "Entrada":
+                    lista1.append(i)
+            return lista1
+        
+        def cam_presu(self,nombre,valor):
+            try:
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                float(elvalor)
+                main.cambiar_presupuesto(self,
+                                 nombre.get(),
+                                 float(elvalor))
+                self.master.destroy()
+            except:
+                messagebox.showerror('Error', 'Ingrese un valor númerico para el nuevo Presupuesto') 
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        
+        if self.actual_obra == '':
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        
+        else:
+        
+            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
+            self.cbb = Combobox(self.frame,width=32)
+            self.cbb['values'] = quitar_entradas(sql.get_rubros_obra(self.actual_obra))
+            self.cbb.current(0)
+            self.lblu = Label(self.frame,text="Ingrese Nuevo Presupuesto",font=("Arial",10))
+            self.entru = Entry(self.frame,width=35)
+            self.agregar = Button(self.frame, text = "Agregar", 
+                              command = lambda: cam_presu(self,
+                                                              self.cbb,
+                                                              self.entru))
+            self.blank = Label(self.frame,text=" ")
+            self.lbly.pack()
+            self.cbb.pack()
+            self.lblu.pack()
+            self.entru.pack()
+            self.blank.pack()
+            self.quit.pack(side = "left")
+            self.agregar.pack(side = "right")
+            self.master.resizable(False, False)
+            self.frame.pack()
         
     #Ventana para ver Historial Facturas
     def ventana_mostrar_f(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
         self.master = master
         self.master.geometry("1030x260")
         self.frame = Frame(self.master)
@@ -703,8 +1119,6 @@ class main:
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         self.vista = Treeview(self.frame, columns = ("rubro", "tipo","valor","responsable"))
-        facturas = sql.select_transacciones_obra(self.actual_obra) 
-        
         self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
         self.vsb.pack(side='right', fill='y')
         self.vista.configure(yscrollcommand=self.vsb.set)
@@ -714,8 +1128,15 @@ class main:
         self.vista.heading("tipo", text="Tipo Transacción")
         self.vista.heading("valor", text="Valor")
         self.vista.heading("responsable", text="Responsable")
-        tr = sql.select_transacciones_obra(self.actual_obra)
+        
+        if self.actual_obra == '': 
+            tr = []
+        else:
+            tr = sql.select_transacciones_obra(self.actual_obra)
         for i in tr:
+
+            asociador = sql.get_nombre_rubro((i[3],))
+
             self.vista.insert("",END,text=i[0],values=(i[3],
                               i[5],
                               i[4],

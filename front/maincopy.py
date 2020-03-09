@@ -17,11 +17,16 @@ from PIL import Image, ImageTk
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 # Implement the default Matplotlib key bindings.
-from matplotlib.backend_bases import key_press_handler
+
+import matplotlib
+
+matplotlib.use("TkAgg")
+
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 import numpy as np
+
 
 
 class main:
@@ -258,19 +263,21 @@ class main:
         texto.insert(INSERT,corpus)
         
         fig = plt.figure(figsize=(4.7,2.5))
+        #fig = Figure()
         
         objects = ('Ingresos','Gasto','Presupuesto')
+        
         y_pos = np.arange(len(objects))
         
         plt.bar(y_pos, estado, align='center', alpha=0.5)
         plt.xticks(y_pos, objects)
         plt.ylabel('$')
         plt.title('Estado de la Obra')
-        
         self.labeljiji = FigureCanvasTkAgg(fig, master=self.window)  # A tk.DrawingArea.
         self.labeljiji.draw()
         self.labeljiji.get_tk_widget().grid(column=0, row=1, sticky =(S))
-        
+        #self.labeljiji.get_tk_widget().destroy()
+        plt.close('all')
     
     def analizar_transacciones(self,listat,listar):
         
@@ -899,6 +906,7 @@ class main:
             self.btn7.state(['disabled'])
             self.btn8.state(['disabled'])
             self.lbljaja["text"]=''
+            self.labeljiji.destroy() 
             if self.master != None:
                 self.master.destroy()
             
@@ -1321,11 +1329,14 @@ class main:
         
         synth = self.analizar_transacciones(trans,rubs)
         
+        self.labelji = ''
         
         
         def graph_1():
             
-            self.labelji = ''
+            if self.labelji != '':
+                self.labelji.get_tk_widget().destroy()
+            
             fig1 = plt.figure(figsize=(6,5))
             plt.clf()
             fig1 = plt.figure(figsize=(6,5))
@@ -1342,11 +1353,13 @@ class main:
 
             self.labelji = FigureCanvasTkAgg(fig1, master=self.master)  # A tk.DrawingArea.
             self.labelji.draw()
-            self.labelji.get_tk_widget().grid(column=0, row=0)
+            self.labelji.get_tk_widget().pack(side="bottom")
+            plt.close('all')
             
         def graph_2():
             
-            self.labeljii = ''
+            if self.labelji != '':
+                self.labelji.get_tk_widget().destroy()
             fig = plt.figure(figsize=(6,5))
             plt.clf()
             estado = [0,0,0]
@@ -1396,24 +1409,29 @@ class main:
             
             plt.tight_layout()
             
-            self.labeljii = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
-            self.labeljii.draw()
-            self.labeljii.get_tk_widget().grid(column=0, row=1)
+            self.labelji = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
+            self.labelji.draw()
+            self.labelji.get_tk_widget().pack(side="bottom")
+            plt.close('all')
 
 
         def _quit():
                     # stops mainloop
+            plt.close('all')
             self.master.destroy()  # this is necessary on Windows to prevent
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
         if self.actual_obra != '':
             graph_1()
-            graph_2()
         
         self.buttoon = Button(self.frame, text="Salir", command=_quit)
-        self.buttoon.grid(column=0, row=2, sticky =(W))
+        self.buttoon.pack(side="right")
+        self.buttoon1 = Button(self.frame, text="Porcentaje\nIngresos", command=graph_1)
+        self.buttoon1.pack(side="left")
+        self.buttoon1 = Button(self.frame, text="Presupuesto\npor etapas", command=graph_2)
+        self.buttoon1.pack(side="left")
         self.master.resizable(False, False)
-        #self.frame.pack()
+        self.frame.pack()
    
     
 

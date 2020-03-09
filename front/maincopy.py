@@ -39,6 +39,7 @@ class main:
         
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
+        self.sudo = BooleanVar()
 
         self.lbljaja = Label(window, text="",font=("Arial",12))
         self.lbljaja.grid(column=0, row=1, sticky =(N))
@@ -169,6 +170,8 @@ class main:
             self.combo.current(0)
             self.lbljaja["text"]= self.combo.get()
         except:
+            pass
+        if self.sudo:
             pass
         self.btn2.state(['!disabled'])
         self.btn1.state(['!disabled'])
@@ -1401,10 +1404,10 @@ class main:
                              color='r',
                              label='Gastos')
 
-            plt.xlabel('Person')
+            plt.xlabel('Etapa del Proyecto')
             plt.ylabel('Dinero')
             plt.title('Presupuesto vs Gastos')
-            plt.xticks(index + bar_width, ('A', 'B', 'C', 'D'))
+            plt.xticks(index + bar_width, ('Antes', 'Durante', 'Después'))
             plt.legend()
             
             plt.tight_layout()
@@ -1413,8 +1416,16 @@ class main:
             self.labelji.draw()
             self.labelji.get_tk_widget().pack(side="bottom")
             plt.close('all')
-
-
+            
+        def graph_3():
+            if self.labelji != '':
+                self.labelji.get_tk_widget().destroy()
+            
+            self.labelji = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
+            self.labelji.draw()
+            self.labelji.get_tk_widget().pack(side="bottom")
+            plt.close('all')
+    
         def _quit():
                     # stops mainloop
             plt.close('all')
@@ -1428,8 +1439,10 @@ class main:
         self.buttoon.pack(side="right")
         self.buttoon1 = Button(self.frame, text="Porcentaje\nIngresos", command=graph_1)
         self.buttoon1.pack(side="left")
-        self.buttoon1 = Button(self.frame, text="Presupuesto\npor etapas", command=graph_2)
-        self.buttoon1.pack(side="left")
+        self.buttoon2 = Button(self.frame, text="Presupuesto\npor etapas", command=graph_2)
+        self.buttoon2.pack(side="left")
+        self.buttoon3 = Button(self.frame, text="Vista de\nUtilidades", command=graph_3)
+        self.buttoon3.pack(side="left")
         self.master.resizable(False, False)
         self.frame.pack()
    

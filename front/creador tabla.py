@@ -46,7 +46,8 @@ def main():
     crear_usuarios = """ CREATE TABLE IF NOT EXISTS users (
                                         user text PRIMARY KEY,
                                         password text NOT NULL,
-                                        nombre text NOT NULL
+                                        nombre text NOT NULL,
+                                        sudo integer NOT NULL
                                     ); """
 
     crear_clientes = """ CREATE TABLE IF NOT EXISTS clientes (
@@ -119,6 +120,6 @@ def main():
     else:
         print("Error! cannot create the database connection.")
     
-    sql.create_user(("admin","admin","Administrador"))
+    sql.create_user(("admin","admin","Administrador",1))
         
 main()

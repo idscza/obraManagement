@@ -96,6 +96,8 @@ def main():
                                     FOREIGN KEY (responsable) REFERENCES users (user),
                                     FOREIGN KEY (cliente_id) REFERENCES clientes (id)
                                 );"""
+    
+    crear 
  
     # create a database connection
     conn = create_connection(database)

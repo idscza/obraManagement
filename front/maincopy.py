@@ -35,7 +35,7 @@ class main:
         self.master = None
         self.window = window
         self.window.title("Manejo de Obras")
-        self.window.geometry('960x660')
+        self.window.geometry('1270x660')
         
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
@@ -68,7 +68,7 @@ class main:
         self.lbl2 = Label(window, text='         ')
         self.lbl2.grid(column=1,row=1)
     
-        self.txt = scrolledtext.ScrolledText(window,width=70,height=35)
+        self.txt = scrolledtext.ScrolledText(window,width=110,height=35)
         self.txt.grid(column=2, row=1)
     
         self.combo = Combobox(window,width=32)
@@ -162,6 +162,10 @@ class main:
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
         self.actualizar_valores()
+        if datetime.date.today().weekday() == 1:
+            #self.mostrar_facturas_semana
+            pass
+            
     
     def cargar_obras(self):
         vals = sql.select_all_obras()
@@ -237,9 +241,11 @@ class main:
                 gen = '\tPresupuesto: '+str(estado[2])+ '\t Gastos:' + str(estado[1])
             else:
                 gen = str(estado[0])
-            corpus+= '\n----------------------------------------------------------------------'
+            corpus+= '\n----------------------------------------------------------------------'+\
+                '---------------------------------------\n'
             corpus+= '\t   '+val+ ' $' +  gen
-            corpus+= '\n----------------------------------------------------------------------'
+            corpus+= '\n----------------------------------------------------------------------'+\
+                '---------------------------------------\n'
             dummy = synth[val]
             if val == "INGRESOS":
                 for damn in dummy:
@@ -250,9 +256,11 @@ class main:
             if val == "EGRESOS":
                 for goddamn in dummy:
                     gen = '\tPresupuesto: '+str(estado2[goddamn][0])+ '\t Gastos:' + str(estado2[goddamn][1])
-                    corpus+= '\n----------------------------------------------------------------------'
+                    corpus+=  '\n----------------------------------------------------------------------'+\
+                '---------------------------------------\n'
                     corpus+= '\t    '+goddamn+ ' $'+gen
-                    corpus+= '\n----------------------------------------------------------------------' 
+                    corpus+=  '\n----------------------------------------------------------------------'+\
+                '---------------------------------------\n' 
                     for porfin in dummy[goddamn]:
                         corpus+= '\n'
                         corpus+= porfin
@@ -1420,6 +1428,34 @@ class main:
         def graph_3():
             if self.labelji != '':
                 self.labelji.get_tk_widget().destroy()
+            
+            fig = plt.figure(figsize=(6,5))
+            plt.clf()
+            
+            tag = ("Utilidad",)
+            y_pos = np.arange(len(tag))
+            
+            
+            entrada = 0
+            gasto = 0
+            
+            for tran in trans:
+                if tran[5]=="Entrada":
+                    entrada+=tran[4]
+                elif tran[5]=="Salida":
+                    gasto+=tran[4]
+            
+            width = 0.5
+
+            indices = np.arange(len(tag))
+
+            plt.barh(tag, entrada, width, 
+                     color='b', label='Ingreso')
+            plt.barh(tag, gasto, 
+                     width, color='r', label='Gasto')
+            plt.title('La utilidad de esta obra es $' + str(entrada-gasto))
+
+            plt.legend()
             
             self.labelji = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
             self.labelji.draw()

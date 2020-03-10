@@ -97,7 +97,7 @@ class main:
         self.btn1.grid(column=2, row=2, sticky = (W))
         
         
-        self.btn3 = Button(window, text="Mostrar Facturas         ",
+        self.btn3 = Button(window, text="Mostrar Transacciones",
                            command = lambda: self.ventana_mostrar_f(Toplevel(self.window)),
                            state='disabled')
         self.btn3.grid(column=2, row=2, sticky = (E))
@@ -107,12 +107,12 @@ class main:
                                ,state='disabled')
         self.btn2.grid(column=2, row=2)
         
-        self.btn4 = Button(window, text="        Ver Clientes         ",
+        self.btn4 = Button(window, text="     Registrar Venta    ",
                            command=lambda: self.ventana_agregar_t(Toplevel(self.window))
                                ,state='disabled')
-        #self.btn4.grid(column=2, row=3)
+        self.btn4.grid(column=2, row=3)
         
-        self.btn5 = Button(window, text="Información Obra       ",
+        self.btn5 = Button(window, text="Información Obra        ",
                            command=lambda: self.ventana_info_obra(Toplevel(self.window))
                                ,state='disabled')
         self.btn5.grid(column=2, row=3, sticky = (E))
@@ -132,9 +132,9 @@ class main:
         self.cascada = Menu(self.menus,tearoff=0)
         self.cascada.add_command(label='Ver Clientes',
                     command=lambda: self.ventana_mostrar_c(Toplevel(self.window)))
-        #self.cascada.add_command(label='Buscar Cliente',
-        #            command=lambda: self.ventana_buscar_c(Toplevel(self.window)))
-        self.cascada.add_command(label='Agregar Cliente',
+        self.cascada.add_command(label='Info Cliente',
+                    command=lambda: self.ventana_buscar_c(Toplevel(self.window)))
+        self.cascada.add_command(label='Agregar Cliente',state='disabled',
                     command=lambda: self.ventana_agregar_c(Toplevel(self.window)))
         self.cascada2 = Menu(self.menus,tearoff=0)
         self.cascada2.add_command(label='Cambiar Nombre',
@@ -142,6 +142,8 @@ class main:
         self.cascada2.add_command(label='Cambiar Contraseña',
                     command=lambda: self.ventana_editar_pw(Toplevel(self.window)))
         self.menus.add_cascade(label='Clientes',state='disabled', menu=self.cascada)
+        self.menus.add_command(label='Ver Cobros Semana',state='disabled',
+                    command=lambda: self.ver_cobros(Toplevel(self.window)))
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
         self.menus.add_cascade(label='Editar Usuario',state='disabled', menu=self.cascada2)
@@ -157,7 +159,10 @@ class main:
         self.menus.entryconfig('Iniciar Sesión',state='disabled')
         self.menus.entryconfig("Crear Usuario",state='normal')
         self.menus.entryconfig("Editar Usuario",state='normal')
+        self.menus.entryconfig("Ver Cobros Semana",state='normal')
         self.menus.entryconfig("Clientes",state='normal')
+        if self.sudo:
+            self.cascada.entryconfig('Agregar Cliente',state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
@@ -176,16 +181,16 @@ class main:
         except:
             pass
         if self.sudo:
-            pass
-        self.btn2.state(['!disabled'])
-        self.btn1.state(['!disabled'])
+            self.btn7.state(['!disabled'])
+            self.btn8.state(['!disabled'])
+            self.btn.state(['!disabled'])
+            self.btn2.state(['!disabled'])
+            self.btn1.state(['!disabled'])
+            self.btn4.state(['!disabled'])
         self.btn3.state(['!disabled'])
-        self.btn4.state(['!disabled'])
         self.btn5.state(['!disabled'])
         self.btn6.state(['!disabled'])
-        self.btn7.state(['!disabled'])
-        self.btn8.state(['!disabled'])
-        self.btn.state(['!disabled'])
+
        
         
     def actualizar_valoress(self,machete):
@@ -273,7 +278,7 @@ class main:
         texto.delete(1.0,END)
         texto.insert(INSERT,corpus)
         
-        fig = plt.figure(figsize=(4.7,2.5))
+        fig = plt.figure(figsize=(3.3,1.9))
         #fig = Figure()
         
         objects = ('Ingresos','Gasto','Presupuesto')
@@ -338,9 +343,8 @@ class main:
         fc = str(fcd) + '-' + str(yd[fcm]) + "-" + str(fca)
         try:
             helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,0,info))
-            messagebox.showinfo('Crear Obra','Obra creada con éxito')
             self.rubros_por_defecto(helper)
-            #TODO RUBROS DEFECTO
+            messagebox.showinfo('Crear Obra','Obra creada con éxito')
 
         except:
             messagebox.showerror('Error','La obra no pudo ser creada')
@@ -353,9 +357,43 @@ class main:
         sql.create_rubro((helper,"Inversionistas","Entrada",0))
         sql.create_rubro((helper,"Ventas","Entrada",0))
         sql.create_rubro((helper,"Préstamos","Entrada",0))
-        sql.create_rubro((helper,"Planos","Durante",0))
+        
+        sql.create_rubro((helper,"Expensas","Antes",0))
+        sql.create_rubro((helper,"Permiso Planos","Antes",0))
+        sql.create_rubro((helper,"Delimitación Urbana","Antes",0))
+        sql.create_rubro((helper,"Distribución Planos","Antes",0))
+        sql.create_rubro((helper,"Pre-Construcción","Antes",0))
+        
+        sql.create_rubro((helper,"Nomina Obreros","Durante",0))
+        sql.create_rubro((helper,"Limpieza Lote - Personal","Durante",0))
+        sql.create_rubro((helper,"Limpieza Lote - Volquetas","Durante",0))
+        sql.create_rubro((helper,"Limpieza Lote - Retroexcavadora","Durante",0))
+        sql.create_rubro((helper,"Pilotaje","Durante",0))
+        sql.create_rubro((helper,"Placa Cimentación - Hierro","Durante",0))
+        sql.create_rubro((helper,"Placa Cimentación - Casetón","Durante",0))
+        sql.create_rubro((helper,"Placa Cimentación - Concretera","Durante",0))
+        sql.create_rubro((helper,"Altura Obra - Cementera","Durante",0))
+        sql.create_rubro((helper,"Altura Obra - Hierro","Durante",0))
+        sql.create_rubro((helper,"Altura Obra - Montaje","Durante",0))
+        sql.create_rubro((helper,"Agua","Durante",0))
+        sql.create_rubro((helper,"Luz","Durante",0))
+        sql.create_rubro((helper,"Gas","Durante",0))
+        sql.create_rubro((helper,"Acabados - Cerámica","Durante",0))
+        sql.create_rubro((helper,"Acabados - Electrodomésticos","Durante",0))
+        sql.create_rubro((helper,"Acabados - Ornamentación","Durante",0))
+        sql.create_rubro((helper,"Acabados - Pisos y Laminados","Durante",0))
+        sql.create_rubro((helper,"Acabados - Drywall","Durante",0))
+        sql.create_rubro((helper,"Acabados - Ascensor","Durante",0))
+        sql.create_rubro((helper,"Acabados - Carpintería","Durante",0))
+        sql.create_rubro((helper,"Acabados - Grifería","Durante",0))
+               
         sql.create_rubro((helper,"Retorno Inversionistas","Después",0))
-        #TODO Diversificar rubros de entrada
+        sql.create_rubro((helper,"Escritura","Después",0))
+        sql.create_rubro((helper,"Desenglobe","Después",0))
+        sql.create_rubro((helper,"Permisos Ventas","Después",0))
+        sql.create_rubro((helper,"Permiso IDU","Después",0))
+        sql.create_rubro((helper,"Reglamento Propiedad Horizontal","Después",0))
+              
         
     def validar_fecha(m,d,a):
         isValidDate = True
@@ -480,10 +518,11 @@ class main:
             theusr = usr.get().lower()
             if theusr not in trial.keys():
                 messagebox.showerror('Error', 'Usuario no encontrado')
-            elif trial[theusr] != pw.get():
+            elif trial[theusr][0] != pw.get():
                 messagebox.showerror('Error', 'Contraseña inválida')
             else:
                 self.actual_user = theusr
+                self.sudo = bool(trial[theusr][1])
                 main.activar_todo(self) 
             self.master.destroy()
 
@@ -640,13 +679,13 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x230")
+        self.master.geometry("280x250")
         self.frame = Frame(self.master)
          
         def close_window(self):
             self.master.destroy()
         
-        def agregar_el_user(usr,pw,pw2,nm):
+        def agregar_el_user(usr,pw,pw2,nm,su):
             trial = sql.select_all_users()
             theusr = usr.get().lower()
             if theusr in trial.keys():
@@ -656,7 +695,11 @@ class main:
             elif pw.get() == '':
                 messagebox.showerror('Error', 'Las contraseña no debe ser vacía')
             else:
-                sql.create_user((theusr,pw.get(),nm.get()))
+                if su.get() == 'Administrador':
+                    sud = 1
+                else: 
+                    sud = 0
+                sql.create_user((theusr,pw.get(),nm.get(),sud))
                 messagebox.showinfo('Éxito','Se ha agregado el usuario')
             self.master.destroy()
         self.quit = Button(self.frame, text = " Cancelar ", 
@@ -670,11 +713,19 @@ class main:
         self.lblpw2 = Label(self.frame,text="Confirme la contraseña",font=("Arial",10))
         self.entrpw2 = Entry(self.frame,show="*",width=35)
         self.blank = Label(self.frame,text=" ")
+        self.lblsudo = Label(self.frame,text="Tipo de Usuario",font=("Arial",10))
+        self.combse1 = Combobox(self.frame,width=32)
+        if self.sudo:
+            self.combse1['values'] = ('Normal','Administrador')
+        else:
+            self.combse1['values'] = ('Normal')
+        self.combse1.current(0)
         self.agregar = Button(self.frame, text = "Registrar", 
                               command = lambda: agregar_el_user(self.entrus,
                                                                 self.entrpw,
                                                                 self.entrpw2,
-                                                                self.entrnm))
+                                                                self.entrnm,
+                                                                self.combse1))
         self.lblus.pack()
         self.entrus.pack()
         self.lblnm.pack()
@@ -683,6 +734,8 @@ class main:
         self.entrpw.pack()
         self.lblpw2.pack()
         self.entrpw2.pack()
+        self.lblsudo.pack()
+        self.combse1.pack()
         self.blank.pack()
         self.quit.pack(side = "left")
         self.agregar.pack(side = "right")
@@ -901,6 +954,8 @@ class main:
             self.menus.entryconfig("Cerrar Sesión",state='disabled')
             self.menus.entryconfig("Editar Usuario",state='disabled')
             self.menus.entryconfig("Estado General",state='disabled')
+            self.menus.entryconfig("Ver Cobros Semana",state='disabled')
+            self.cascada.entryconfig('Agregar Cliente',state='disabled')
             self.menus.entryconfig("Clientes",state='disabled')
             self.actual_user = ''
             self.actual_obra = 0
@@ -917,7 +972,7 @@ class main:
             self.btn7.state(['disabled'])
             self.btn8.state(['disabled'])
             self.lbljaja["text"]=''
-            self.labeljiji.destroy() 
+            self.labeljiji.get_tk_widget().destroy()
             if self.master != None:
                 self.master.destroy()
             
@@ -1060,6 +1115,7 @@ class main:
             
             if nombre.get().strip() == '':            
                 messagebox.showerror('Error', 'Ingrese un nombre válido para el rubro') 
+                return
             try:
                 elvalor = valor.get().strip()
                 if elvalor == '':
@@ -1284,7 +1340,7 @@ class main:
             self.master.resizable(False, False)
             self.frame.pack()       
         
-    #Ventana para ver Historial Facturas
+    #Ventana para ver Historial Transacciones
     def ventana_mostrar_f(self,master):
         
         if self.master != None:

@@ -32,8 +32,8 @@ def create_user(user):
     conn = create_connection(database)
     with conn:
 
-        sql = ''' INSERT INTO users(user,password,nombre)
-              VALUES(?,?,?) '''
+        sql = ''' INSERT INTO users(user,password,nombre,sudo)
+              VALUES(?,?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, user)
         return cur.lastrowid
@@ -50,8 +50,9 @@ def select_all_users():
         
         users = {}
         for row in rows:
-            users[row[0]]=row[1]
+            users[row[0]]=(row[1],row[3])
         return users
+    
 
 def get_name_by_user(username):
     database ="database/trialdb.db"

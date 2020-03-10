@@ -97,7 +97,21 @@ def main():
                                     FOREIGN KEY (cliente_id) REFERENCES clientes (id)
                                 );"""
     
-    crear 
+    crear_contratos = """CREATE TABLE IF NOT EXISTS contratos (
+                                    id integer PRIMARY KEY,
+                                    obra_id integer NOT NULL,
+                                    responsable text NOT NULL,
+                                    cliente_id id NOT NULL,
+                                    saldo real NOT NULL,
+                                    cuota real NOT NULL,
+                                    semanas integer NOT NULL,
+                                    numero_apto text,
+                                    tipo text NOT NULL,
+                                    FOREIGN KEY (obra_id) REFERENCES obras (id),
+                                    FOREIGN KEY (responsable) REFERENCES users (user),
+                                    FOREIGN KEY (cliente_id) REFERENCES clientes (id)
+                                );"""
+    
  
     # create a database connection
     conn = create_connection(database)
@@ -118,6 +132,9 @@ def main():
         
         # create transacciones
         create_table(conn, crear_transacciones)
+        
+        # create contratos
+        create_table(conn, crear_contratos)
         
     else:
         print("Error! cannot create the database connection.")

@@ -196,12 +196,18 @@ def create_transaccion(transaccion):
     conn = create_connection(database)
     with conn:
  
-        sql = ''' INSERT INTO transacciones(obra_id,responsable,rubro_id,valor,tipo)
+        if transaccion[5] is None:
+            sql = ''' INSERT INTO transacciones(obra_id,responsable,rubro_id,valor,tipo)
               VALUES(?,?,?,?,?) '''
-        cur = conn.cursor()
-        cur.execute(sql, transaccion)
-        return cur.lastrowid 
-
+            cur = conn.cursor()
+            cur.execute(sql, transaccion[0:5])
+            return cur.lastrowid 
+        else:
+            sql = ''' INSERT INTO transacciones(obra_id,responsable,rubro_id,valor,tipo,cliente_id)
+              VALUES(?,?,?,?,?,?) '''
+            cur = conn.cursor()
+            cur.execute(sql, transaccion)
+            return cur.lastrowid 
         
 def select_transacciones_obra(obra_id):
     database = "database/trialdb.db"
@@ -212,6 +218,20 @@ def select_transacciones_obra(obra_id):
         sql = "SELECT * FROM transacciones WHERE obra_id = ?"
         cur = conn.cursor()
         cur.execute(sql,obra_id)
+ 
+        rows = cur.fetchall()
+        
+        return rows
+    
+def select_transacciones_cliente(cliente_id):
+    database = "database/trialdb.db"
+ 
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM transacciones WHERE cliente_id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,cliente_id)
  
         rows = cur.fetchall()
         

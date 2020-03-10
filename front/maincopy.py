@@ -41,7 +41,7 @@ class main:
         self.actual_obra = IntVar()
         self.sudo = BooleanVar()
 
-        self.lbljaja = Label(window, text="",font=("Arial",12))
+        self.lbljaja = Label(window, text="",font=("Arial",11))
         self.lbljaja.grid(column=0, row=1, sticky =(N))
         
         self.lbljiji = Label(window, text="",font=("Arial",12))
@@ -107,10 +107,10 @@ class main:
                                ,state='disabled')
         self.btn2.grid(column=2, row=2)
         
-        self.btn4 = Button(window, text="     Registrar Venta    ",
-                           command=lambda: self.ventana_agregar_t(Toplevel(self.window))
+        self.btn4 = Button(window, text="  Registrar Contrato  ",
+                           command=lambda: self.ventana_agregar_cont(Toplevel(self.window))
                                ,state='disabled')
-        self.btn4.grid(column=2, row=3)
+        #self.btn4.grid(column=2, row=3)
         
         self.btn5 = Button(window, text="Información Obra        ",
                            command=lambda: self.ventana_info_obra(Toplevel(self.window))
@@ -142,8 +142,10 @@ class main:
         self.cascada2.add_command(label='Cambiar Contraseña',
                     command=lambda: self.ventana_editar_pw(Toplevel(self.window)))
         self.menus.add_cascade(label='Clientes',state='disabled', menu=self.cascada)
-        self.menus.add_command(label='Ver Cobros Semana',state='disabled',
-                    command=lambda: self.ver_cobros(Toplevel(self.window)))
+        #self.menus.add_command(label='Ver Cobros Semana',state='disabled',
+        #            command=lambda: self.ver_cobros(Toplevel(self.window)))
+        #self.menus.add_command(label='Pagar Cuentas',state='disabled',
+        #            command=lambda: self.ventana_pagar_cuentas(Toplevel(self.window)))
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
         self.menus.add_cascade(label='Editar Usuario',state='disabled', menu=self.cascada2)
@@ -159,10 +161,11 @@ class main:
         self.menus.entryconfig('Iniciar Sesión',state='disabled')
         self.menus.entryconfig("Crear Usuario",state='normal')
         self.menus.entryconfig("Editar Usuario",state='normal')
-        self.menus.entryconfig("Ver Cobros Semana",state='normal')
+        #self.menus.entryconfig("Ver Cobros Semana",state='normal')
         self.menus.entryconfig("Clientes",state='normal')
         if self.sudo:
             self.cascada.entryconfig('Agregar Cliente',state='normal')
+         #   self.menus.entryconfig("Pagar Cuentas",state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
@@ -200,13 +203,7 @@ class main:
         name = self.combo.get()
         self.actual_obra = name.split(".")[0].replace('.','')
         texto = self.txt
-        try:
 
-            obra = sql.get_obra(self.combo.get().split(".")[0])
-            self.lbljaja["text"]= self.combo.get() + '\n'+\
-                'Ciudad: ' + obra[2] + '\nDirección: ' + obra[3]
-        except:
-            pass
         corpus = ''
       
         corpus = name
@@ -250,7 +247,7 @@ class main:
                 '---------------------------------------\n'
             corpus+= '\t   '+val+ ' $' +  gen
             corpus+= '\n----------------------------------------------------------------------'+\
-                '---------------------------------------\n'
+                '---------------------------------------'
             dummy = synth[val]
             if val == "INGRESOS":
                 for damn in dummy:
@@ -265,7 +262,7 @@ class main:
                 '---------------------------------------\n'
                     corpus+= '\t    '+goddamn+ ' $'+gen
                     corpus+=  '\n----------------------------------------------------------------------'+\
-                '---------------------------------------\n' 
+                '---------------------------------------' 
                     for porfin in dummy[goddamn]:
                         corpus+= '\n'
                         corpus+= porfin
@@ -277,6 +274,14 @@ class main:
 
         texto.delete(1.0,END)
         texto.insert(INSERT,corpus)
+        
+        try:
+            obra = sql.get_obra(self.combo.get().split(".")[0])
+            self.lbljaja["text"]= self.combo.get() + '\n'+\
+                'Ciudad: ' + obra[2] + '\nDirección: ' + obra[3] +\
+                    '\nSaldo: $' + str(estado[0]-estado[1])
+        except:
+            pass
         
         fig = plt.figure(figsize=(3.3,1.9))
         #fig = Figure()
@@ -318,12 +323,18 @@ class main:
 
         return xd
             
-    def agregar_obr(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,cerlib,lic,info):
+    def agregar_obr(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,cerlib,lic,aptos,info):
         yd = {'ENE':1,'FEB':2,'MAR':3,'ABR':4,'MAY':5,'JUN':6,
              'JUL':7,'AGO':8,'SEP':9,'OCT':10,'NOV':11,'DIC':12}
         ini = main.validar_fecha(yd[fim],int(fid),int(fia))
         cul = main.validar_fecha(yd[fcm],int(fcd),int(fca))
         fat = False
+        try:
+            float(aptos)
+        except:
+            messagebox.showerror('Error', 'Ingrese un número de apartamentos válido')
+            return False
+        
         if int(fca) < int(fia):
             fat = True
         elif int(fca) == int(fia) and yd[fcm] < yd[fim]:
@@ -342,7 +353,7 @@ class main:
         fi = str(fid) + '-' + str(yd[fim]) + "-" + str(fia)
         fc = str(fcd) + '-' + str(yd[fcm]) + "-" + str(fca)
         try:
-            helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,0,info))
+            helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,aptos,info))
             self.rubros_por_defecto(helper)
             messagebox.showinfo('Crear Obra','Obra creada con éxito')
 
@@ -420,7 +431,7 @@ class main:
         self.actualizar_valores()
 
     
-    def agregar_transac(self,nombre,valor):
+    def agregar_transac(self,nombre,valor,cli):
         
         hue = sql.select_transacciones_obra(self.actual_obra)
         
@@ -429,12 +440,18 @@ class main:
         
         asociador = sql.get_rubro_by_nombre_obra((realname,self.actual_obra))
         
+        if cli != "Ninguno":
+            elkli = cli.split(' - ')[0]
+        else:
+            elkli = None
+        
         if verify == "Entrada":
             sql.create_transaccion((self.actual_obra,
                                     self.actual_user,
                                     asociador,
                                     valor,
-                                    'Entrada'
+                                    'Entrada',
+                                    elkli
                                     ))
             messagebox.showinfo('Crear Transacción','Transacción creada con éxito')
             self.actualizar_valores()
@@ -445,7 +462,8 @@ class main:
                                     self.actual_user,
                                     asociador,
                                     valor,
-                                    'Salida'
+                                    'Salida',
+                                    elkli
                                     ))            
                 messagebox.showinfo('Registrar Transacción','Transacción realizada con éxito')
                 self.actualizar_valores()
@@ -461,8 +479,7 @@ class main:
         self.actualizar_valores()
         messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
         
-    def editar_obra(self,nombre,valor):
-        
+    def editar_obra(self,nombre,valor):     
         translate = {'Nombre':'nombre',
                      'Ciudad':'ciudad',
                      'Dirección':'direccion',
@@ -473,17 +490,17 @@ class main:
                      'Información Adicional':'info_extra'}
         if translate[nombre] == "disponibles":
             try:
-                elvalor = valor.get().strip()
+                elvalor = valor.strip()
                 if elvalor == '':
                     elvalor = 0
                 valor = float(elvalor)
             except:
-                messagebox.showerror('Error', 'Ingrese un valor numerico para el nuevo Presupuesto')
+                messagebox.showerror('Error', 'Ingrese un valor numérico para el número de apartamentos')
                 return False
         sql.update_obra((translate[nombre],valor,self.actual_obra))
         self.cargar_obras()
         self.actualizar_valores()
-        messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
+        messagebox.showinfo('Presupuesto','La información de la obra se actualizó con éxito')
         return True
         
     def verificar_dinero(self,facturas, valor):
@@ -565,7 +582,9 @@ class main:
                            command = lambda : close_window(self))
         self.lbltt = Label(self.frame,text="Presupuesto General",font=("Arial",14))
         self.lblio = Label(self.frame,text="Ingresos: $"+str(data[0][0])+
-                           "   Egresos: $"+str(data[0][1]),font=("Arial",14)) 
+                           "   Egresos: $"+str(data[0][1])+"   Utilidades: $" +
+                           str(data[0][0]-data[0][1])
+                           ,font=("Arial",10)) 
         
         self.vista = Treeview(self.frame, columns = ("entrada", "presupuesto","gasto"))
         
@@ -616,7 +635,7 @@ class main:
             self.master.destroy()
             
         self.master = master
-        self.master.geometry("370x240")
+        self.master.geometry("370x440")
         self.frame = Frame(self.master)
         
         def close_window(self):
@@ -643,7 +662,9 @@ class main:
             self.lblu = Label(self.frame,text="Apartamentos Disponibles: "+str(data[9]),font=("Arial",12))
             self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
                           +data[6],font=("Arial",11))
-
+            self.lblv = Label(self.frame,text = "Información Adicional",font=("Arial",12))
+            self.lblw = scrolledtext.ScrolledText(self.frame,width=40,height=7)
+            self.lblw.insert(INSERT,data[10])
             temp = sql.select_transacciones_obra(self.actual_obra)
             temp2 = sql.select_rubros_obra(self.actual_obra)
             estado = [0,0,0]
@@ -668,6 +689,9 @@ class main:
             self.lblu.pack()
             self.lblt.pack()
             self.lblest.pack()
+            self.lblest.pack()
+            self.lblv.pack()
+            self.lblw.pack()
             self.quit.pack()
             self.master.resizable(False, False)
             self.frame.pack()    
@@ -866,14 +890,46 @@ class main:
         self.master = master
         self.master.geometry("620x300")
         self.frame = Frame(self.master)
-                  
+            
         def close_window(self):
             self.master.destroy()      
-        def actualizar():
-            pass
+        def actualizar(cc):
+            elid = cc.get().split(' - ')[0]
+            jijiji = sql.select_transacciones_cliente((elid,))
+            for i in self.transacs.get_children():
+                self.transacs.delete(i)
+            for i in jijiji:
+                self.transacs.insert("",END,text=sql.get_obra(i[1])[1],
+                                     values= (sql.get_nombre_rubro((i[3],)), i[4]))
+            
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
+        self.transacs = Treeview(self.frame, columns = ("td", "id"))
+        self.transacs.heading("#0", text="Obra")
+        self.transacs.heading("td", text="Transaccion")
+        self.transacs.heading("id", text="Valor")
         
+        self.vsb = Scrollbar(self.frame, orient="vertical", command=self.transacs.yview)
+        self.vsb.pack(side='right', fill='y')
+        self.transacs.configure(yscrollcommand=self.vsb.set)
+        
+        cl = sql.select_all_clientes()
+        listc = []
+        for i in cl:
+            listc.append(i[2]+" - "+i[0])
+        listc = tuple(listc)
+        
+        self.comboclients = Combobox(self.frame,width=32)
+        self.comboclients['values'] = listc
+        self.actu = Button(self.frame, text = " Actualizar ", 
+                           command = lambda : actualizar(self.comboclients))
+        self.comboclients.pack()
+        self.actu.pack()
+        self.transacs.pack()
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()        
+    
         
     
     #Ventana Agregar Clientes
@@ -954,7 +1010,8 @@ class main:
             self.menus.entryconfig("Cerrar Sesión",state='disabled')
             self.menus.entryconfig("Editar Usuario",state='disabled')
             self.menus.entryconfig("Estado General",state='disabled')
-            self.menus.entryconfig("Ver Cobros Semana",state='disabled')
+            #self.menus.entryconfig("Pagar Cuentas",state='disabled')
+            #self.menus.entryconfig("Ver Cobros Semana",state='disabled')
             self.cascada.entryconfig('Agregar Cliente',state='disabled')
             self.menus.entryconfig("Clientes",state='disabled')
             self.actual_user = ''
@@ -985,13 +1042,13 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x435")
+        self.master.geometry("250x465")
         self.frame = Frame(self.master)
           
         def close_window(self):
             self.master.destroy()
         
-        def agregar_la_obra(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,crlib,licon,info):
+        def agregar_la_obra(self,nm,ct,dr,ie,fim,fid,fia,fcm,fcd,fca,crlib,licon,aptos,info):
             sepudo = main.agregar_obr(self,nm.get(),
                              ct.get(),
                              dr.get(),
@@ -1004,6 +1061,7 @@ class main:
                              fca.get(),
                              crlib.get(),
                              licon.get(),
+                             aptos.get(),
                              info.get())
             if sepudo:
                 self.master.destroy()
@@ -1050,6 +1108,8 @@ class main:
         self.entrg = Entry(self.frame,width=35)
         self.lblh = Label(self.frame,text="Licencia de Construcción",font=("Arial",10))
         self.entrh = Entry(self.frame,width=35)
+        self.lblap = Label(self.frame,text="Apartamentos Disponibles",font=("Arial",10))
+        self.entrap = Entry(self.frame,width=35)
         self.lbli = Label(self.frame,text="Información Adicional",font=("Arial",10))
         self.entri = Entry(self.frame,width=35)
         self.agregar = Button(self.frame, text = "Agregar",
@@ -1066,6 +1126,7 @@ class main:
                                                                 self.combf3,
                                                                 self.entrg,
                                                                 self.entrh,
+                                                                self.entrap,
                                                                 self.entri)) 
         self.blank = Label(self.frame,text=" ")
         self.lbla.grid(column=0,row=0)
@@ -1088,11 +1149,13 @@ class main:
         self.entrg.grid(column=0,row=13)
         self.lblh.grid(column=0,row=14)
         self.entrh.grid(column=0,row=15)
-        self.lbli.grid(column=0,row=16)
-        self.entri.grid(column=0,row=17)
-        self.blank.grid(column=0,row=18)
-        self.quit.grid(column=0,row=19, sticky = (W))
-        self.agregar.grid(column=0,row=19, sticky = (E))
+        self.lblap.grid(column=0,row=16)
+        self.entrap.grid(column=0,row=17)         
+        self.lbli.grid(column=0,row=18)
+        self.entri.grid(column=0,row=19)
+        self.blank.grid(column=0,row=20)
+        self.quit.grid(column=0,row=21, sticky = (W))
+        self.agregar.grid(column=0,row=21, sticky = (E))
         self.master.resizable(False, False)
         self.frame.pack()        
     
@@ -1172,13 +1235,13 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("250x200")
         self.frame = Frame(self.master)
                   
         def close_window(self):
             self.master.destroy()      
         
-        def agregar_trans(self,nombre,valor):
+        def agregar_trans(self,nombre,valor,cli):
             try:
                 elvalor = valor.get().strip()
                 if elvalor == '':
@@ -1186,7 +1249,8 @@ class main:
                 float(elvalor)
                 main.agregar_transac(self,
                                  nombre.get(),
-                                 float(elvalor))
+                                 float(elvalor),
+                                 cli.get())
                 self.master.destroy()
             except:
                 messagebox.showerror('Error', 'Ingrese un valor númerico para el valor de la transacción') 
@@ -1205,16 +1269,29 @@ class main:
             self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
             self.cbb = Combobox(self.frame,width=32)
             self.cbb['values'] = sql.get_rubros_obra(self.actual_obra)
+            self.iclient = Combobox(self.frame,width=32)
+            losclientes = sql.select_all_clientes()
+            listc = ["Ninguno"]
+            for i in losclientes:
+                listc.append(i[2]+" - "+i[0])
+            listc = tuple(listc)
+        
+            self.iclient['values'] = listc
+            self.iclient.current(0)
             self.cbb.current(0)
             self.lblu = Label(self.frame,text="Ingrese Nueva Transacción",font=("Arial",10))
+            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
             self.entru = Entry(self.frame,width=35)
             self.agregar = Button(self.frame, text = "Agregar", 
                               command = lambda: agregar_trans(self,
                                                               self.cbb,
-                                                              self.entru))
+                                                              self.entru,
+                                                              self.iclient))
             self.blank = Label(self.frame,text=" ")
             self.lbly.pack()
             self.cbb.pack()
+            self.lblcl.pack()
+            self.iclient.pack()
             self.lblu.pack()
             self.entru.pack()
             self.blank.pack()
@@ -1222,8 +1299,159 @@ class main:
             self.agregar.pack(side = "right")
             self.master.resizable(False, False)
             self.frame.pack()
+
+    #Ventana para Crear Contrato
+    def ventana_agregar_cont(self,master):
+         
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x150")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()      
+        
+        def sig_ventana(self,nombre,cli):
+            
+            if nombre.get() == 'Venta':
+                self.ventana_venta(master,cli.get())
+            else:
+                ventana_inversion(self,master,cli.get(),nombre.get()) 
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        
+        if self.actual_obra == '':
+            self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
+            self.lblerr.pack()
+            self.quit.pack()
+            self.master.resizable(False, False)
+            self.frame.pack()  
+        
+        else:
+        
+            self.lbly = Label(self.frame,text="Seleccionar Tipo Contrato",font=("Arial",10))
+            self.cbb = Combobox(self.frame,width=32)
+            self.cbb['values'] = ("Inversión","Venta","Prestamo")
+            self.iclient = Combobox(self.frame,width=32)
+            losclientes = sql.select_all_clientes()
+            listc = []
+            for i in losclientes:
+                listc.append(i[2]+" - "+i[0])
+            listc = tuple(listc)
+        
+            self.iclient['values'] = listc
+            self.iclient.current(0)
+            self.cbb.current(0)
+            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
+            self.agregar = Button(self.frame, text = "Continuar", 
+                              command = lambda: sig_ventana(self,
+                                                              self.cbb,
+                                                              self.iclient))
+            self.blank = Label(self.frame,text=" ")
+            self.lbly.pack()
+            self.cbb.pack()
+            self.lblcl.pack()
+            self.iclient.pack()
+            self.blank.pack()
+            self.quit.pack(side = "left")
+            self.agregar.pack(side = "right")
+            self.master.resizable(False, False)
+            self.frame.pack()
+
+    def ventana_venta(self,master,cliente):
+         
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x200")
+        self.frame = Frame(self.master)
+                  
+        def agg_venta(self,noapt,lci,lct):
+            try:
+                ci = float(lci.get())
+                ct = float(lct.get())
+                if ct > ci:
+                    messagebox.showerror('Error', 'La cuota inicial no puede superar al costo total')
+                else:
+                    agregar_contrato(self,self.actual_obra,self.actual_user,
+                                     cliente,
+                                     ct-ci,0,0,noapt,'Venta',datetime.date.today())
+            except:
+                messagebox.showerror('Error', 'Ingrese un valor númerico para la cuota y el costo') 
+
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        
+        self.lbla = Label(self.frame,text="Ingrese Número Apartamento",font=("Arial",10))
+        self.entra = Entry(self.frame,width=35)
+        
+        self.lbls = Label(self.frame,text="Ingrese Cuota Inicial",font=("Arial",10))
+        self.entrs = Entry(self.frame,width=35)
+        
+        self.lbld = Label(self.frame,text="Ingrese Costo total",font=("Arial",10))
+        self.entrd = Entry(self.frame,width=35)
+        self.agregar = Button(self.frame, text = "Continuar", 
+                              command = lambda: sig_ventana(self,
+                                                              self.entra,
+                                                              self.entrs,
+                                                              self.entrd))
+        
+        
+        self.lbla.pack()
+        self.entra.pack()
+        self.lbls.pack()
+        self.entrs.pack()
+        self.lbld.pack()
+        self.entrd.pack()
+        self.quit.pack(side = "left")
+        self.agregar.pack(side = "right")
+        self.master.resizable(False, False)
+        self.frame.pack()
+        
+        
+                        
+        
+        
+    def agregar_contrato(self,obra,resp,clint,sal,x,y,apto,tip,fech):
+        sql.create_contrato(rubro)
+                                     
+    
+    def ventana_pagar_cuentas(self,master):
+        
+        if self.master != None:
+            self.master.destroy()
+        
+        self.master = master
+        self.master.geometry("250x150")
+        self.frame = Frame(self.master)
+        
+        def close_window(self):
+            self.master.destroy()      
+        
+        def sig_ventana(self,nombre,cli):
+            
+            if nombre.get() == 'Venta':
+                ventana_venta(self,master,cli.get())
+            else:
+                ventana_inversion(self,master,cli.get(),nombre.get()) 
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        
+        self.cbct = Combobox(self.frame,width=32)
+        self.cbct['values'] = ()
+        #TODo
+        
+        
+        
+        self.quit.pack(side = "left")
+        self.agregar.pack(side = "right")
+        self.master.resizable(False, False)
+        self.frame.pack()
        
-    #Ventana cambiar presupuesto    
+    #Ventana cambiar presupuesto     
     def ventana_editar_p(self,master):
         if self.master != None:
             self.master.destroy()
@@ -1318,7 +1546,7 @@ class main:
         
             self.lbly = Label(self.frame,text="Seleccionar elemento",font=("Arial",10))
             self.cbb = Combobox(self.frame,width=32)
-            self.cbb['values'] = ('Nombre','Ciudad','Dirección'
+            self.cbb['values'] = ('Nombre','Ciudad','Dirección',
                                 'Encargado','Certificado Libertad',
                                 'Licencia de Construccion', 'Apartamentos Disponibles',
                                 'Información Adicional')
@@ -1403,6 +1631,7 @@ class main:
             
             if self.labelji != '':
                 self.labelji.get_tk_widget().destroy()
+            self.combograph['state']='disabled'
             
             fig1 = plt.figure(figsize=(6,5))
             plt.clf()
@@ -1427,6 +1656,7 @@ class main:
             
             if self.labelji != '':
                 self.labelji.get_tk_widget().destroy()
+            self.combograph['state']='disabled'
             fig = plt.figure(figsize=(6,5))
             plt.clf()
             estado = [0,0,0]
@@ -1484,7 +1714,7 @@ class main:
         def graph_3():
             if self.labelji != '':
                 self.labelji.get_tk_widget().destroy()
-            
+            self.combograph['state']='disabled'
             fig = plt.figure(figsize=(6,5))
             plt.clf()
             
@@ -1517,16 +1747,68 @@ class main:
             self.labelji.draw()
             self.labelji.get_tk_widget().pack(side="bottom")
             plt.close('all')
-    
+        
+        def graph_4():
+            if self.labelji != '':
+                self.labelji.get_tk_widget().destroy()
+            self.combograph['state']='readonly'
+            
+                        
+            fig = plt.figure(figsize=(6,5))
+            plt.clf()
+            
+            
+            elrubroo = self.combograph.get()
+            elrubro = 0
+            presup = 0
+            for i in rubs:
+                if i[2] == elrubroo:
+                    elrubro = i[0]
+                    presup = i[4]
+                    break
+            gasto = 0
+
+            for tran in trans:
+                if tran[3]==elrubro:
+                    gasto+=tran[4]
+            
+            n_groups = 1
+            presupuestos = (presup)
+            gastos = (gasto)
+
+            fig, ax = plt.subplots()
+            index = np.arange(n_groups)
+            bar_width = 0.35
+            opacity = 0.8
+
+            rects1 = plt.bar(index, presupuestos, bar_width,
+                             alpha=opacity,
+                             color='b',
+                             label='Presupuesto')
+
+            rects2 = plt.bar(index + bar_width, gastos, bar_width,
+                             alpha=opacity,
+                             color='r',
+                             label='Gastos')
+
+            plt.xlabel('Rubro')
+            plt.ylabel('Dinero')
+            plt.title(elrubroo)
+            plt.xticks(index + bar_width, (' '))
+            plt.legend()
+
+            self.labelji = FigureCanvasTkAgg(fig, master=self.master)  # A tk.DrawingArea.
+            self.labelji.draw()
+            self.labelji.get_tk_widget().pack(side="bottom")            
+            plt.close('all')
+            
         def _quit():
                     # stops mainloop
             plt.close('all')
             self.master.destroy()  # this is necessary on Windows to prevent
                     # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
-        if self.actual_obra != '':
-            graph_1()
-        
+
         self.buttoon = Button(self.frame, text="Salir", command=_quit)
         self.buttoon.pack(side="right")
         self.buttoon1 = Button(self.frame, text="Porcentaje\nIngresos", command=graph_1)
@@ -1535,6 +1817,19 @@ class main:
         self.buttoon2.pack(side="left")
         self.buttoon3 = Button(self.frame, text="Vista de\nUtilidades", command=graph_3)
         self.buttoon3.pack(side="left")
+        self.buttoon4 = Button(self.frame, text="Buscar\nRubro", command=graph_4)
+        self.buttoon4.pack(side="left")
+        self.combograph = Combobox(self.frame,width=32,state='disabled')
+        rublist = []
+        rub1 = sql.get_rubros_obra(self.actual_obra)
+        for k in rub1:
+            rublist.append(k.split(': ')[1])
+        self.combograph['values'] = tuple(rublist)
+        self.combograph.current(0)
+        self.combograph.pack(side="left")
+        if self.actual_obra != '':
+            graph_1()
+        
         self.master.resizable(False, False)
         self.frame.pack()
    

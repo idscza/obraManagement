@@ -107,6 +107,7 @@ def main():
                                     semanas integer NOT NULL,
                                     numero_apto text,
                                     tipo text NOT NULL,
+                                    fecha_ini text NOT NULL, 
                                     FOREIGN KEY (obra_id) REFERENCES obras (id),
                                     FOREIGN KEY (responsable) REFERENCES users (user),
                                     FOREIGN KEY (cliente_id) REFERENCES clientes (id)

@@ -16,7 +16,6 @@ from PIL import Image, ImageTk
 
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
-# Implement the default Matplotlib key bindings.
 
 import matplotlib
 
@@ -33,6 +32,7 @@ class main:
     def __init__(self,window):
         
         self.master = None
+        self.minaster = None
         self.window = window
         self.window.title("Manejo de Obras")
         self.window.geometry('1270x660')
@@ -40,20 +40,13 @@ class main:
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
         self.sudo = BooleanVar()
+        self.quotes = []
 
         self.lbljaja = Label(window, text="",font=("Arial",11))
         self.lbljaja.grid(column=0, row=1, sticky =(N))
         
         self.lbljiji = Label(window, text="",font=("Arial",12))
         self.lbljiji.grid(column=0, row=1, sticky =(S))
-       
-        '''fig = Figure(figsize=(3, 1), dpi=100)
-        t = np.arange(0, 3, .01)
-        fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
-
-        self.labeljiji = FigureCanvasTkAgg(fig, master=self.window)  # A tk.DrawingArea.
-        self.labeljiji.draw()
-        self.labeljiji.grid(column=0, row=1, sticky =(S))'''
 
         
         self.photo = Image.open("pic.png")
@@ -73,7 +66,6 @@ class main:
     
         self.combo = Combobox(window,width=32)
         self.window.bind('<<ComboboxSelected>>', self.actualizar_valoress)
-
         self.combo.grid(column = 0, row = 2, sticky = (E))
     
         self.lbl2 = Label(window, text='       Obras\n     Actuales')
@@ -110,7 +102,7 @@ class main:
         self.btn4 = Button(window, text="  Registrar Contrato  ",
                            command=lambda: self.ventana_agregar_cont(Toplevel(self.window))
                                ,state='disabled')
-        #self.btn4.grid(column=2, row=3)
+        self.btn4.grid(column=2, row=3)
         
         self.btn5 = Button(window, text="Información Obra        ",
                            command=lambda: self.ventana_info_obra(Toplevel(self.window))
@@ -142,10 +134,10 @@ class main:
         self.cascada2.add_command(label='Cambiar Contraseña',
                     command=lambda: self.ventana_editar_pw(Toplevel(self.window)))
         self.menus.add_cascade(label='Clientes',state='disabled', menu=self.cascada)
-        #self.menus.add_command(label='Ver Cobros Semana',state='disabled',
-        #            command=lambda: self.ver_cobros(Toplevel(self.window)))
-        #self.menus.add_command(label='Pagar Cuentas',state='disabled',
-        #            command=lambda: self.ventana_pagar_cuentas(Toplevel(self.window)))
+        self.menus.add_command(label='Ver Cobros Semana',state='disabled',
+                    command=lambda: self.mostrar_facturas_pendientes(Toplevel(self.window)))
+        self.menus.add_command(label='Pagar Cuentas',state='disabled',
+                    command=lambda: self.ventana_pagar_cuentas(Toplevel(self.window)))
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
         self.menus.add_cascade(label='Editar Usuario',state='disabled', menu=self.cascada2)
@@ -161,18 +153,16 @@ class main:
         self.menus.entryconfig('Iniciar Sesión',state='disabled')
         self.menus.entryconfig("Crear Usuario",state='normal')
         self.menus.entryconfig("Editar Usuario",state='normal')
-        #self.menus.entryconfig("Ver Cobros Semana",state='normal')
+        self.menus.entryconfig("Ver Cobros Semana",state='normal')
         self.menus.entryconfig("Clientes",state='normal')
         if self.sudo:
             self.cascada.entryconfig('Agregar Cliente',state='normal')
-         #   self.menus.entryconfig("Pagar Cuentas",state='normal')
+            self.menus.entryconfig("Pagar Cuentas",state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
         self.actualizar_valores()
-        if datetime.date.today().weekday() == 1:
-            #self.mostrar_facturas_semana
-            pass
+            
             
     
     def cargar_obras(self):
@@ -302,7 +292,6 @@ class main:
     
     def analizar_transacciones(self,listat,listar):
         
-        
         xd = {"INGRESOS":{},
               "EGRESOS":{
                       "Antes":{},
@@ -350,8 +339,8 @@ class main:
         if nm.strip() == '' or ct.strip() == '' or dr.strip() == '':
             messagebox.showerror('Error', 'La obra no puede registrarse con nombre, ciudad o dirección vacíos')
             return False
-        fi = str(fid) + '-' + str(yd[fim]) + "-" + str(fia)
-        fc = str(fcd) + '-' + str(yd[fcm]) + "-" + str(fca)
+        fi = str(fid) + '/' + str(yd[fim]) + "/" + str(fia)
+        fc = str(fcd) + '/' + str(yd[fcm]) + "/" + str(fca)
         try:
             helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,aptos,info))
             self.rubros_por_defecto(helper)
@@ -542,6 +531,8 @@ class main:
                 self.sudo = bool(trial[theusr][1])
                 main.activar_todo(self) 
             self.master.destroy()
+            if datetime.date.today().weekday() == 1:
+                self.mostrar_facturas_pendientes(Toplevel(self.window))
 
         self.quit = Button(self.frame, text = " Cancelar ", 
                            command = lambda : close_window(self))
@@ -1010,8 +1001,8 @@ class main:
             self.menus.entryconfig("Cerrar Sesión",state='disabled')
             self.menus.entryconfig("Editar Usuario",state='disabled')
             self.menus.entryconfig("Estado General",state='disabled')
-            #self.menus.entryconfig("Pagar Cuentas",state='disabled')
-            #self.menus.entryconfig("Ver Cobros Semana",state='disabled')
+            self.menus.entryconfig("Pagar Cuentas",state='disabled')
+            self.menus.entryconfig("Ver Cobros Semana",state='disabled')
             self.cascada.entryconfig('Agregar Cliente',state='disabled')
             self.menus.entryconfig("Clientes",state='disabled')
             self.actual_user = ''
@@ -1226,8 +1217,7 @@ class main:
             self.agregar.pack(side = "right")
             self.master.resizable(False, False)
             self.frame.pack()
-
-    
+   
     #Ventana para Agregar Transacción
     def ventana_agregar_t(self,master):
         
@@ -1307,18 +1297,24 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("250x370")
         self.frame = Frame(self.master)
                   
         def close_window(self):
-            self.master.destroy()      
+            self.master.destroy()
+            self.quotes = []
         
-        def sig_ventana(self,nombre,cli):
+        def cuota(self,cli):
+            self.ventana_cuota(Toplevel(self.master),cli.get())
             
-            if nombre.get() == 'Venta':
-                self.ventana_venta(master,cli.get())
-            else:
-                ventana_inversion(self,master,cli.get(),nombre.get()) 
+        def agregar_cont(self,apto,cli,tipocont):
+            
+            holii = self.agregar_contrato(apto.get(),cli.get(),tipocont.get())
+            if holii:
+                self.master.destroy()
+                self.quotes = []
+                self.actualizar_valores()
+
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         
@@ -1333,91 +1329,269 @@ class main:
         
             self.lbly = Label(self.frame,text="Seleccionar Tipo Contrato",font=("Arial",10))
             self.cbb = Combobox(self.frame,width=32)
-            self.cbb['values'] = ("Inversión","Venta","Prestamo")
+            self.cbb['values'] = ("Inversión","Venta","Préstamo")
             self.iclient = Combobox(self.frame,width=32)
             losclientes = sql.select_all_clientes()
             listc = []
             for i in losclientes:
-                listc.append(i[2]+" - "+i[0])
+                listc.append(i[0]+" ["+i[2]+"]")
             listc = tuple(listc)
         
             self.iclient['values'] = listc
-            self.iclient.current(0)
+            try:
+                self.iclient.current(0)
+            except:
+                pass
             self.cbb.current(0)
             self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
-            self.agregar = Button(self.frame, text = "Continuar", 
-                              command = lambda: sig_ventana(self,
-                                                              self.cbb,
-                                                              self.iclient))
+            self.agregar = Button(self.frame, text = "Agregar Cuota", 
+                              command = lambda: cuota(self,self.iclient))
+            self.proceder = Button(self.frame, text = "Continuar", 
+                              command = lambda: agregar_cont(self,
+                                                              self.entrna,
+                                                              self.iclient,
+                                                              self.cbb
+                                                              ))
+            if len(listc) == 0:
+                self.proceder.state(['disabled'])
+                self.agregar.state(['disabled'])
+                
+            self.lblna = Label(self.frame,text="Ingrese Número Apartamento",font=("Arial",10))
+            self.entrna = Entry(self.frame,width=35)
+            
+            self.cuotat = Label(self.frame,text="Cuotas actuales",font=("Arial",10))
+            self.cuoticas = scrolledtext.ScrolledText(self.frame,width=27,height=10)
+                
             self.blank = Label(self.frame,text=" ")
             self.lbly.pack()
             self.cbb.pack()
             self.lblcl.pack()
             self.iclient.pack()
+            self.lblna.pack()
+            self.entrna.pack()
+            self.cuotat.pack()
+            self.cuoticas.pack()            
             self.blank.pack()
             self.quit.pack(side = "left")
+            self.proceder.pack(side = "right")
             self.agregar.pack(side = "right")
             self.master.resizable(False, False)
             self.frame.pack()
 
-    def ventana_venta(self,master,cliente):
+    def ventana_cuota(self,master,cliente):
          
-        if self.master != None:
-            self.master.destroy()
-        
-        self.master = master
-        self.master.geometry("250x200")
-        self.frame = Frame(self.master)
-                  
-        def agg_venta(self,noapt,lci,lct):
-            try:
-                ci = float(lci.get())
-                ct = float(lct.get())
-                if ct > ci:
-                    messagebox.showerror('Error', 'La cuota inicial no puede superar al costo total')
-                else:
-                    agregar_contrato(self,self.actual_obra,self.actual_user,
-                                     cliente,
-                                     ct-ci,0,0,noapt,'Venta',datetime.date.today())
-            except:
-                messagebox.showerror('Error', 'Ingrese un valor númerico para la cuota y el costo') 
+        if self.minaster != None:
+            self.minaster.destroy()
 
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.minaster = master
+        self.minaster.geometry("250x260")
+        self.frame1 = Frame(self.minaster)
+        
+        def close_window(self):
+            self.minaster.destroy()
+            self.quotes = []
+
+         
+        def aggcuota(self,detalle,precio,dia,mes,anio,tipoc,estadop):
+            sepudo = main.agregar_quo(self,detalle.get(),
+                             precio.get(),
+                             dia.get(),
+                             mes.get(),
+                             anio.get(),
+                             tipoc.get(),
+                             estadop.get())
+            if sepudo:
+                self.minaster.destroy()
+                
+                
+        self.quit1 = Button(self.frame1, text = " Salir ", 
                            command = lambda : close_window(self))
+            
         
-        self.lbla = Label(self.frame,text="Ingrese Número Apartamento",font=("Arial",10))
-        self.entra = Entry(self.frame,width=35)
+        self.lbld = Label(self.frame1,text="Ingrese Valor",font=("Arial",10))
+        self.entrd = Entry(self.frame1,width=35)
         
-        self.lbls = Label(self.frame,text="Ingrese Cuota Inicial",font=("Arial",10))
-        self.entrs = Entry(self.frame,width=35)
+        self.lble = Label(self.frame1,text="Fecha Pago/Cobro",font=("Arial",10))
+        self.combe1 = Combobox(self.frame1,width=8)        
+        self.combe1['values'] = ('ENE','FEB','MAR','ABR','MAY','JUN',
+                                 'JUL','AGO','SEP','OCT','NOV','DIC')
+        self.combe1.current(0)
+        self.combe2 = Combobox(self.frame1,width=8)
+        self.combe2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
+                                 16,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+        self.combe2.current(0)
+        self.combe3 = Combobox(self.frame1,width=8)
+        self.combe3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
+                                  2024,2025,2026,2027,2028,2029,2030,2031,2032,
+                                  2033,2034,2035)
+        self.combe3.current(0)
         
-        self.lbld = Label(self.frame,text="Ingrese Costo total",font=("Arial",10))
-        self.entrd = Entry(self.frame,width=35)
-        self.agregar = Button(self.frame, text = "Continuar", 
-                              command = lambda: sig_ventana(self,
-                                                              self.entra,
-                                                              self.entrs,
-                                                              self.entrd))
+        self.lbld = Label(self.frame1,text="Concepto",font=("Arial",10))
+        self.entrd = Entry(self.frame1,width=35)
         
+        self.lblp = Label(self.frame1,text="Valor",font=("Arial",10))
+        self.entrp = Entry(self.frame1,width=35)
         
-        self.lbla.pack()
-        self.entra.pack()
-        self.lbls.pack()
-        self.entrs.pack()
-        self.lbld.pack()
-        self.entrd.pack()
-        self.quit.pack(side = "left")
-        self.agregar.pack(side = "right")
-        self.master.resizable(False, False)
-        self.frame.pack()
+        self.lble5 = Label(self.frame1,text="Estado de Pago",font=("Arial",10))
+        self.combe5 = Combobox(self.frame1,width=32)
+        self.combe5['values'] = ('Pagado','Por Pagar')
+        self.combe5.current(0)
         
+        self.lble4 = Label(self.frame1,text="Tipo de Cuota",font=("Arial",10))
+        self.combe4 = Combobox(self.frame1,width=32)   
+        self.combe4['values'] = ('Pago a Cliente','Cobro a Cliente')
+        self.combe4.current(0)
         
-                        
+        self.blank = Label(self.frame1,text=" ",font=("Arial",10))
         
+        self.agregar1 = Button(self.frame1, text = "Agregar", 
+                              command = lambda: aggcuota(self,
+                                                              self.entrd,
+                                                              self.entrp,
+                                                              self.combe1,
+                                                              self.combe2,
+                                                              self.combe3,
+                                                              self.combe4,
+                                                              self.combe5))
+        self.lbld.grid(column=0, row=0)
+        self.entrd.grid(column=0, row=1)
+        self.lblp.grid(column=0, row=2)
+        self.entrp.grid(column=0, row=3)        
+        self.lble4.grid(column=0, row=4)
+        self.combe4.grid(column=0, row=5)
+        self.lble5.grid(column=0, row=6)
+        self.combe5.grid(column=0, row=7)
+        self.lble.grid(column=0, row=8)
+        self.combe1.grid(column=0, row=9,sticky = (W))
+        self.combe2.grid(column=0, row=9,sticky = (N))
+        self.combe3.grid(column=0, row=9,sticky = (E))
+        self.blank.grid(column=0, row=10)
+        self.quit1.grid(column=0, row=11,sticky = (W))
+        self.agregar1.grid(column=0, row=11,sticky = (E))
+        self.minaster.resizable(False, False)
+        self.frame1.pack()
+              
+    def agregar_quo(self,detalle,precio,mes,dia,anio,tipoc,estadop):
+        yd = {'ENE':1,'FEB':2,'MAR':3,'ABR':4,'MAY':5,'JUN':6,
+             'JUL':7,'AGO':8,'SEP':9,'OCT':10,'NOV':11,'DIC':12}
+        vad = main.validar_fecha(yd[mes],int(dia),int(anio))
+        try:
+            float(precio)
+        except:
+            messagebox.showerror('Error', 'Ingrese un valor de cuota válido')
+            return False
         
-    def agregar_contrato(self,obra,resp,clint,sal,x,y,apto,tip,fech):
-        sql.create_contrato(rubro)
-                                     
+        if not vad:
+            messagebox.showerror('Error', 'La fecha no es válida')
+            return False
+
+        if detalle.strip() == '' :
+            messagebox.showerror('Error', 'La cuota no puede registrarse con detalle vacío')
+            return False
+        fec = str(dia) + '/' + str(yd[mes]) + "/" + str(anio)
+        if 1:
+            self.quotes.append([0,0,0,float(precio),detalle,fec,tipoc,estadop])
+            messagebox.showinfo('Crear Cuota','Cuota creada con éxito')
+            self.actualizar_cuotas()
+
+        else:
+            messagebox.showerror('Error','La Cuota no pudo ser creada')
+            return False
+        self.actualizar_cuotas()
+        return True
+
+    def actualizar_cuotas(self):
+        texto = ''
+        for i in self.quotes:
+            texto += str(i[4])+'\n'
+            texto += str(i[3])+'\n'
+            texto += i[7] + ' / '+ i[5]+'\n'
+        
+        self.cuoticas.delete(1.0,END)
+        self.cuoticas.insert(INSERT,texto)
+    
+    #self.quotes.append([0,0,0,float(precio),detalle,fec,tipoc,estadop])
+        
+    def numero_aptos(self):
+        return sql.get_aptos_obra((self.actual_obra,))
+    
+    def agregar_contrato(self,apto,cli,tipocont):
+        if tipocont == 'Venta' and apto.strip()=='':
+            messagebox.showerror('Error', 'No es posible realizar una venta sin un apartamento.')
+            return False
+        if self.numero_aptos() == 0:
+            messagebox.showerror('Error', 'No hay apartamentos disponibles en esta obra')
+            return False
+        else:
+            if 1:
+                cli1 = cli.split('[')[1]
+                cli1 = cli1.split(']')[0]
+                fechita = datetime.date.today().strftime("%d/%m/%Y")
+                helper = sql.create_contrato((self.actual_obra,
+                                     self.actual_user,
+                                     cli1,
+                                     0,
+                                     0,0,
+                                     apto,
+                                     tipocont,
+                                     fechita))
+                for i in self.quotes:
+                    idcuotcre = sql.create_cuota((self.actual_obra,
+                                     helper,
+                                     cli1,
+                                     i[3],
+                                     i[4],
+                                     i[5],
+                                     i[6],
+                                     i[7]))
+                    if i[7] == 'Pagado':
+                        j = sql.get_cuota(idcuotcre)
+                        self.generar_factura(idcuotcre,cli1,j)
+                sql.actualizar_saldo((helper,))
+                if tipocont == 'Venta':
+                    sql.descontar_apto((self.actual_obra,))
+                messagebox.showinfo('Crear contrato','Contrato creado con éxito')
+                return True
+            else:
+                messagebox.showerror('Error', 'No se pudo crear el contrato')
+                return False
+    
+    def generar_factura(self,idcout,client,lacuot):
+        
+        pc = ''
+        ingeg = ''
+        ques = sql.get_tipocontrato_by_cuota((idcout,))
+        print(ques)
+        if ques == 'Venta':
+            pc = 'Ventas'
+            ingeg = 'Entrada'
+        elif ques == 'Inversión':
+            if lacuot[7] == 'Cobro a Cliente':
+                pc = 'Inversionistas'
+                ingeg = 'Entrada'
+            elif lacuot[7] == 'Pago a Cliente':
+                pc = 'Retorno Inversionistas'
+                ingeg = 'Salida'
+        elif ques == 'Préstamo':
+            if lacuot[7] == 'Cobro a Cliente':
+                pc = 'Préstamos'
+                ingeg = 'Entrada'
+            elif lacuot[7] == 'Pago a Cliente':
+                pc = 'Retorno Inversionistas'
+                ingeg = 'Salida'
+        print(lacuot)       
+        print(pc)
+        idrub = sql.get_rubro_by_nombre_obra((pc,lacuot[1]))
+        
+        sql.create_transaccion((lacuot[1],
+                                self.actual_user,
+                                idrub,
+                                lacuot[4],
+                                ingeg,
+                                client
+                                ))
+        sql.cambiar_pagado((idcout,))      
+    
     
     def ventana_pagar_cuentas(self,master):
         
@@ -1425,29 +1599,56 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("450x100")
         self.frame = Frame(self.master)
         
         def close_window(self):
             self.master.destroy()      
         
-        def sig_ventana(self,nombre,cli):
+        def pagarlo(self):
+            num = int(self.cbct.get().split(" - ")[0])
+            num = self.guidcuota[num]
+            self.generar_factura(self.sinpagar[num][0],
+                                 self.sinpagar[num][3],
+                                 self.sinpagar[num])
+            messagebox.showinfo('Pagar Cuenta','Cuenta Pagada')
+            self.master.destroy()
+            self.actualizar_valores()
             
-            if nombre.get() == 'Venta':
-                ventana_venta(self,master,cli.get())
-            else:
-                ventana_inversion(self,master,cli.get(),nombre.get()) 
+  
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
+        self.pagar = Button(self.frame, text = "Pagar", 
+                           command = lambda : pagarlo(self))
         
-        self.cbct = Combobox(self.frame,width=32)
-        self.cbct['values'] = ()
-        #TODo
-        
-        
-        
+        self.cbct = Combobox(self.frame,width=67)
+        self.sinpagar = sql.get_cuotas_por_pagar()
+        print(self.sinpagar)
+        self.valuespagar = []
+        self.guidcuota = {}
+        j = 0
+        for i in self.sinpagar:
+            self.guidcuota[i[0]] = j
+            cl = sql.get_cliente(i[3])
+            nomc = str(cl[0])+' ('+str(cl[2])+')'
+            self.valuespagar.append(str(i[0]) + " - "+\
+                               str(nomc)+ " - "+\
+                               str(i[5])+ " - "+\
+                               str(i[6])+ " - "+\
+                               str(i[4]))
+            j+=1
+        self.cbct['values'] = tuple(self.valuespagar)
+        if len(self.valuespagar) == 0:
+            self.pagar.state(['disabled'])
+        else:
+            self.cbct.current(0)
+        self.tit = Label(self.frame,text="Seleccione cuota a pagar",font=("Arial",10))
+        self.tit.pack()
+        self.cbct.pack()
+        self.blank = Label(self.frame,text=" ",font=("Arial",10))
+        self.blank.pack()
         self.quit.pack(side = "left")
-        self.agregar.pack(side = "right")
+        self.pagar.pack(side = "right")
         self.master.resizable(False, False)
         self.frame.pack()
        
@@ -1611,6 +1812,48 @@ class main:
         self.master.resizable(False, False)
         self.frame.pack()
                                    
+    def mostrar_facturas_pendientes(self,master):
+        if self.master != None:
+            self.master.destroy()
+        self.master = master
+        self.frame = Frame(self.master)
+        self.master.geometry("1030x260")
+        self.frame = Frame(self.master)
+                  
+        def close_window(self):
+            self.master.destroy()      
+        
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))
+        self.vista = Treeview(self.frame, columns = ("detalle", "tipo","valor","Fecha"))
+        self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
+        self.vsb.pack(side='right', fill='y')
+        self.vista.configure(yscrollcommand=self.vsb.set)
+        
+        self.vista.heading("#0", text="Cliente")
+        self.vista.heading("detalle", text="Concepto")
+        self.vista.heading("tipo", text="Tipo Cuota")
+        self.vista.heading("valor", text="Valor")
+        self.vista.heading("Fecha", text="Fecha")
+        
+        if self.actual_obra == '': 
+            tr = []
+        else:
+            tr = sql.get_facturas_vencidas()
+        for i in tr:
+
+            datetime.date.today()
+            nombre = sql.get_cliente(i[3])
+            nombre = nombre[0] + ' - ' +nombre[1]
+
+            self.vista.insert("",END,text=nombre,values=(i[5],
+                              i[7],
+                              i[4],
+                              i[6]))
+        self.vista.pack()
+        self.quit.pack()
+        self.master.resizable(False, False)
+        self.frame.pack()
     #Ventana para ver graficas de obra
     
     def  ver_graficas(self,master):

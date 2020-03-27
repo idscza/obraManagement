@@ -152,7 +152,7 @@ def get_cliente(elid):
         
         temp = cur.fetchall()
         if len(temp) > 0:
-            return cur.fetchall()[0]
+            return temp[0]
         else :
             return temp
 
@@ -337,4 +337,171 @@ def create_rubro(rubro):
         cur = conn.cursor()
         cur.execute(sql, rubro)
         return cur.lastrowid 
+    
+def get_aptos_obra(obra):
+    database = "database/trialdb.db"
+ 
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM obras WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,obra)
+ 
+        rows = cur.fetchall()
+        return rows[0][9]
+
+def create_contrato(contrato):
+    database = "database/trialdb.db"
+ 
+    # create a database connection
+    
+    conn = create_connection(database)
+    with conn:
+ 
+        sql = ''' INSERT INTO contratos(obra_id, responsable,cliente_id,saldo,
+                                    cuota,semanas,numero_apto,tipo,fecha_ini)
+              VALUES(?,?,?,?,?,?,?,?,?) '''
+        cur = conn.cursor()
+        cur.execute(sql, contrato)
+        return cur.lastrowid 
    
+def create_cuota(cuota):
+    database = "database/trialdb.db"
+ 
+    # create a database connection
+    
+    conn = create_connection(database)
+    with conn:
+ 
+        sql = ''' INSERT INTO cuotas(obra_id, contrato_id,cliente_id,valor,
+                                    detalle,fecha,tipo,estado)
+              VALUES(?,?,?,?,?,?,?,?) '''
+        cur = conn.cursor()
+        cur.execute(sql, cuota)
+        return cur.lastrowid 
+
+def descontar_apto(obra):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM obras WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,obra)
+ 
+        rows = cur.fetchall()
+        temp = rows[0][9]       
+        temp = temp-1
+        
+        sql = ''' UPDATE obras
+              SET disponibles = ? 
+              WHERE id = ?'''
+        cur = conn.cursor()
+        cur.execute(sql, (temp,obra[0]))
+        conn.commit()
+        
+def actualizar_saldo(contrato):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM cuotas WHERE contrato_id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,contrato)
+ 
+        rows = cur.fetchall()
+        total = 0
+        for i in rows:
+            if i[8] == 'Por Pagar':
+                total += i[4]
+                
+        sql = ''' UPDATE contratos
+              SET saldo = ? 
+              WHERE id = ?'''
+        cur = conn.cursor()
+        dummy = (total,contrato[0])
+        cur.execute(sql, dummy)
+        conn.commit()
+    
+def get_tipocontrato_by_cuota(cuota):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM cuotas WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,cuota)
+ 
+        rows = cur.fetchall()
+        elcontrato = rows[0][2]
+        
+        sql = "SELECT * FROM contratos WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,(elcontrato,))
+        rows = cur.fetchall()
+        eltipo = rows[0][8]
+        return eltipo
+    
+def cambiar_pagado(a_cambiar):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:       
+                    
+        sql = ''' UPDATE cuotas
+              SET estado = 'Pagado' 
+              WHERE id = ?'''
+        cur = conn.cursor()
+        cur.execute(sql, a_cambiar)
+        conn.commit()
+        
+def get_cuotas_por_pagar():
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM cuotas WHERE estado = 'Por Pagar'"
+        cur = conn.cursor()
+        cur.execute(sql)
+ 
+        rows = cur.fetchall()
+        return rows
+    
+def get_cuota(elid):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM cuotas WHERE id = ?"
+        cur = conn.cursor()
+        cur.execute(sql,(elid,))
+        
+        temp = cur.fetchall()
+        if len(temp) > 0:
+            return temp[0]
+        else :
+            return temp
+
+def get_facturas_vencidas():
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = "SELECT * FROM cuotas"
+        cur = conn.cursor()
+        cur.execute(sql)
+        
+        temp = cur.fetchall()
+        temp2 = []
+        for i in temp:
+            if i[8] == "Por Pagar":
+                temp2.append(i)
+        return temp2

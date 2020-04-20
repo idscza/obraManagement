@@ -279,7 +279,7 @@ def get_rubro_by_nombre_obra(combo):
     # create a database connection
     conn = create_connection(database)
     with conn:
-        sql = "SELECT * FROM rubros WHERE nombre = ? and obra_id = ?"
+        sql = "SELECT * FROM rubros WHERE nombre = ? and tipo = ? and obra_id = ?"
         cur = conn.cursor()
         cur.execute(sql,combo)
  
@@ -311,6 +311,34 @@ def update_presupuesto_rubro(presu,rubro):
         cur = conn.cursor()
         cur.execute(sql, (presu,rubro))
         conn.commit()
+        
+def update_nombre_rubro(presu,rubro):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = ''' UPDATE rubros
+              SET nombre = ? 
+              WHERE id = ?'''
+        cur = conn.cursor()
+        cur.execute(sql, (presu,rubro))
+        conn.commit()
+        
+def delete_rubro(rubro):
+    database ="database/trialdb.db"
+    
+    # create a database connection
+    conn = create_connection(database)
+    with conn:
+        sql = 'DELETE FROM transacciones WHERE rubro_id=?'
+        cur = conn.cursor()
+        cur.execute(sql, (rubro,))
+        conn.commit()  
+        sql = 'DELETE FROM rubros WHERE id=?'
+        cur = conn.cursor()
+        cur.execute(sql, (rubro,))
+        conn.commit() 
 
 def update_obra(combo):
     database ="database/trialdb.db"

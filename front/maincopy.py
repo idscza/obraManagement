@@ -61,7 +61,7 @@ class main:
         self.lbl2 = Label(window, text='         ')
         self.lbl2.grid(column=1,row=1)
     
-        self.txt = scrolledtext.ScrolledText(window,width=110,height=35)
+        self.txt = scrolledtext.ScrolledText(window,width=98,height=31,font=("Arial",12))
         self.txt.grid(column=2, row=1)
     
         self.combo = Combobox(window,width=32)
@@ -79,7 +79,7 @@ class main:
                           ,command= lambda: self.ventana_editar_o(Toplevel(self.window)))
         self.btn7.grid(column=0, row=3, sticky = (E))
         
-        self.btn8 = Button(window, text="      Editar\nPresupuesto",state='disabled'
+        self.btn8 = Button(window, text="Editar\nRubro",state='disabled'
                           ,command= lambda: self.ventana_editar_p(Toplevel(self.window)))
         self.btn8.grid(column=0, row=3)
     
@@ -230,36 +230,32 @@ class main:
         for val in synth:
             gen = ''
             if val == "EGRESOS":
-                gen = '\tPresupuesto: '+str(estado[2])+ '\t Gastos:' + str(estado[1])
+                gen = '\t\tPresupuesto: '+str(estado[2])+ '\t\t\t\t Gastos: ' + str(estado[1])
             else:
                 gen = str(estado[0])
-            corpus+= '\n----------------------------------------------------------------------'+\
-                '---------------------------------------\n'
+            corpus+= '\n'+'-'*175+'\n'
             corpus+= '\t   '+val+ ' $' +  gen
-            corpus+= '\n----------------------------------------------------------------------'+\
-                '---------------------------------------'
+            corpus+= '\n'+'-'*175
             dummy = synth[val]
             if val == "INGRESOS":
                 for damn in dummy:
                     corpus+= '\n'
                     corpus+= damn
-                    corpus+=':  \t'
+                    corpus+=':  '+'\t'*5
                     corpus+= str(dummy[damn])
             if val == "EGRESOS":
                 for goddamn in dummy:
-                    gen = '\tPresupuesto: '+str(estado2[goddamn][0])+ '\t Gastos:' + str(estado2[goddamn][1])
-                    corpus+=  '\n----------------------------------------------------------------------'+\
-                '---------------------------------------\n'
+                    gen = '\t\tPresupuesto: '+str(estado2[goddamn][0])+ '\t\t\t\t Gastos: ' + str(estado2[goddamn][1])
+                    corpus+='\n'+'-'*175+'\n'
                     corpus+= '\t    '+goddamn+ ' $'+gen
-                    corpus+=  '\n----------------------------------------------------------------------'+\
-                '---------------------------------------' 
+                    corpus+= '\n'+'-'*175
                     for porfin in dummy[goddamn]:
                         corpus+= '\n'
                         corpus+= porfin
-                        corpus+=':  \t'
+                        corpus+=':  '+'\t'*5
                         corpus+='P: '
                         corpus+= str(dummy[goddamn][porfin][0])
-                        corpus+='\tG: '
+                        corpus+='\t'*4+'G: '
                         corpus+= str(dummy[goddamn][porfin][1])               
 
         texto.delete(1.0,END)
@@ -359,33 +355,56 @@ class main:
         sql.create_rubro((helper,"Préstamos","Entrada",0))
         
         sql.create_rubro((helper,"Expensas","Antes",0))
-        sql.create_rubro((helper,"Permiso Planos","Antes",0))
-        sql.create_rubro((helper,"Delimitación Urbana","Antes",0))
-        sql.create_rubro((helper,"Distribución Planos","Antes",0))
-        sql.create_rubro((helper,"Pre-Construcción","Antes",0))
+        sql.create_rubro((helper,"Compra Lote","Antes",0))
+        sql.create_rubro((helper,"Gastos Notariales","Antes",0))
+        sql.create_rubro((helper,"Tramites Curaduría","Antes",0))
+        sql.create_rubro((helper,"Gas","Antes",0))
+        sql.create_rubro((helper,"Luz","Antes",0))
+        sql.create_rubro((helper,"Agua","Antes",0))
+        sql.create_rubro((helper,"Ingeniería","Antes",0))
+        sql.create_rubro((helper,"Publicidad","Antes",0))
+        sql.create_rubro((helper,"Alquiler","Antes",0))
+        sql.create_rubro((helper,"Excavación","Antes",0))
+        sql.create_rubro((helper,"Plomería","Antes",0))
+        sql.create_rubro((helper,"Piso Laminado","Antes",0))
         
         sql.create_rubro((helper,"Nomina Obreros","Durante",0))
+        sql.create_rubro((helper,"Nómina Administrativa","Durante",0))
         sql.create_rubro((helper,"Limpieza Lote - Personal","Durante",0))
         sql.create_rubro((helper,"Limpieza Lote - Volquetas","Durante",0))
         sql.create_rubro((helper,"Limpieza Lote - Retroexcavadora","Durante",0))
         sql.create_rubro((helper,"Pilotaje","Durante",0))
-        sql.create_rubro((helper,"Placa Cimentación - Hierro","Durante",0))
-        sql.create_rubro((helper,"Placa Cimentación - Casetón","Durante",0))
-        sql.create_rubro((helper,"Placa Cimentación - Concretera","Durante",0))
-        sql.create_rubro((helper,"Altura Obra - Cementera","Durante",0))
-        sql.create_rubro((helper,"Altura Obra - Hierro","Durante",0))
-        sql.create_rubro((helper,"Altura Obra - Montaje","Durante",0))
+        sql.create_rubro((helper,"Servicios Públicos","Durante",0))
         sql.create_rubro((helper,"Agua","Durante",0))
         sql.create_rubro((helper,"Luz","Durante",0))
         sql.create_rubro((helper,"Gas","Durante",0))
-        sql.create_rubro((helper,"Acabados - Cerámica","Durante",0))
-        sql.create_rubro((helper,"Acabados - Electrodomésticos","Durante",0))
-        sql.create_rubro((helper,"Acabados - Ornamentación","Durante",0))
-        sql.create_rubro((helper,"Acabados - Pisos y Laminados","Durante",0))
-        sql.create_rubro((helper,"Acabados - Drywall","Durante",0))
-        sql.create_rubro((helper,"Acabados - Ascensor","Durante",0))
-        sql.create_rubro((helper,"Acabados - Carpintería","Durante",0))
-        sql.create_rubro((helper,"Acabados - Grifería","Durante",0))
+        sql.create_rubro((helper,"Placa 1 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 2 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 3 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 4 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 5 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 6 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 7 Hierro","Antes",0))
+        sql.create_rubro((helper,"Placa 1 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 2 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 3 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 4 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 5 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 6 Concreto","Durante",0))
+        sql.create_rubro((helper,"Placa 7 Concreto","Durante",0))
+        sql.create_rubro((helper,"Morteros","Durante",0))
+        sql.create_rubro((helper,"Mamposteria","Durante",0))
+        sql.create_rubro((helper,"Pintura","Durante",0))
+        sql.create_rubro((helper,"Estuco","Durante",0))
+
+        sql.create_rubro((helper,"Carpintería","Durante",0))
+        sql.create_rubro((helper,"Drywall","Durante",0))
+        sql.create_rubro((helper,"Ornamentación","Durante",0))
+        sql.create_rubro((helper,"Constatista Elevador","Durante",0))
+        sql.create_rubro((helper,"Ascensores","Durante",0))
+        sql.create_rubro((helper,"Cerámicas","Durante",0))
+        sql.create_rubro((helper,"Grifería","Durante",0))
+
                
         sql.create_rubro((helper,"Retorno Inversionistas","Después",0))
         sql.create_rubro((helper,"Escritura","Después",0))
@@ -426,8 +445,8 @@ class main:
         
         verify = nombre.split(": ")[0]
         realname = nombre.split(": ")[1]
-        
-        asociador = sql.get_rubro_by_nombre_obra((realname,self.actual_obra))
+        time = nombre.split(": ")[0].split("/")[1]
+        asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
         
         if cli != "Ninguno":
             elkli = cli.split(' - ')[0]
@@ -462,12 +481,33 @@ class main:
     def cambiar_presupuesto(self,nombre,valor):
         
         realname = nombre.split(": ")[1]
-        
-        asociador = sql.get_rubro_by_nombre_obra((realname,self.actual_obra))
+        time = nombre.split(": ")[0].split("/")[1]
+        asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
         sql.update_presupuesto_rubro(valor,asociador)
         self.actualizar_valores()
         messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
         
+    def cambiar_nomb_rub(self,nombre,valor):  
+        realname = nombre.split(": ")[1]
+        if realname == 'Retorno Inversionistas':
+            messagebox.showerror('Error','Este rubro no se puede renombrar')
+        else:
+            time = nombre.split(": ")[0].split("/")[1]
+            asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
+            sql.update_nombre_rubro(valor,asociador)
+            self.actualizar_valores()
+            messagebox.showinfo('Nombre Rubro','El nombre se actualizó con éxito')
+                
+    def delete_rub(self,nombre):  
+        realname = nombre.split(": ")[1]
+        if realname == 'Retorno Inversionistas':
+            messagebox.showerror('Error','Este rubro no se puede borrar')
+        else:
+            time = nombre.split(": ")[0].split("/")[1]
+            asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
+            sql.delete_rubro(asociador)
+            self.actualizar_valores()
+            messagebox.showinfo('Eliminar Rubro','El rubro se eliminó con éxito')        
     def editar_obra(self,nombre,valor):     
         translate = {'Nombre':'nombre',
                      'Ciudad':'ciudad',
@@ -531,7 +571,7 @@ class main:
                 self.sudo = bool(trial[theusr][1])
                 main.activar_todo(self) 
             self.master.destroy()
-            if datetime.date.today().weekday() == 1:
+            if datetime.date.today().weekday() == 0:
                 self.mostrar_facturas_pendientes(Toplevel(self.window))
 
         self.quit = Button(self.frame, text = " Cancelar ", 
@@ -1074,7 +1114,7 @@ class main:
         self.combe1.current(0)
         self.combe2 = Combobox(self.frame,width=8)
         self.combe2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
-                                 16,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+                                 17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combe2.current(0)
         self.combe3 = Combobox(self.frame,width=8)
         self.combe3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
@@ -1088,7 +1128,7 @@ class main:
         self.combf1.current(0)
         self.combf2 = Combobox(self.frame,width=8)
         self.combf2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
-                                 16,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+                                 17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combf2.current(0)
         self.combf3 = Combobox(self.frame,width=8)
         self.combf3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
@@ -1256,10 +1296,11 @@ class main:
         
         else:
         
+            self.master.geometry("480x200")
             self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=32)
+            self.cbb = Combobox(self.frame,width=65)
             self.cbb['values'] = sql.get_rubros_obra(self.actual_obra)
-            self.iclient = Combobox(self.frame,width=32)
+            self.iclient = Combobox(self.frame,width=65)
             losclientes = sql.select_all_clientes()
             listc = ["Ninguno"]
             for i in losclientes:
@@ -1271,7 +1312,7 @@ class main:
             self.cbb.current(0)
             self.lblu = Label(self.frame,text="Ingrese Nueva Transacción",font=("Arial",10))
             self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
-            self.entru = Entry(self.frame,width=35)
+            self.entru = Entry(self.frame,width=68)
             self.agregar = Button(self.frame, text = "Agregar", 
                               command = lambda: agregar_trans(self,
                                                               self.cbb,
@@ -1418,7 +1459,7 @@ class main:
         self.combe1.current(0)
         self.combe2 = Combobox(self.frame1,width=8)
         self.combe2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
-                                 16,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
+                                 17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combe2.current(0)
         self.combe3 = Combobox(self.frame1,width=8)
         self.combe3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
@@ -1561,27 +1602,30 @@ class main:
         pc = ''
         ingeg = ''
         ques = sql.get_tipocontrato_by_cuota((idcout,))
-        print(ques)
         if ques == 'Venta':
             pc = 'Ventas'
             ingeg = 'Entrada'
+            tip = 'Entrada'
         elif ques == 'Inversión':
             if lacuot[7] == 'Cobro a Cliente':
                 pc = 'Inversionistas'
                 ingeg = 'Entrada'
+                tip = 'Entrada'
             elif lacuot[7] == 'Pago a Cliente':
                 pc = 'Retorno Inversionistas'
                 ingeg = 'Salida'
+                tip = 'Después'
         elif ques == 'Préstamo':
             if lacuot[7] == 'Cobro a Cliente':
                 pc = 'Préstamos'
                 ingeg = 'Entrada'
+                tip = 'Entrada'
             elif lacuot[7] == 'Pago a Cliente':
                 pc = 'Retorno Inversionistas'
                 ingeg = 'Salida'
-        print(lacuot)       
-        print(pc)
-        idrub = sql.get_rubro_by_nombre_obra((pc,lacuot[1]))
+                tip = 'Después'   
+        
+        idrub = sql.get_rubro_by_nombre_obra((pc,tip,lacuot[1]))
         
         sql.create_transaccion((lacuot[1],
                                 self.actual_user,
@@ -1623,7 +1667,7 @@ class main:
         
         self.cbct = Combobox(self.frame,width=67)
         self.sinpagar = sql.get_cuotas_por_pagar()
-        print(self.sinpagar)
+        
         self.valuespagar = []
         self.guidcuota = {}
         j = 0
@@ -1683,6 +1727,25 @@ class main:
                 self.master.destroy()
             except:
                 messagebox.showerror('Error', 'Ingrese un valor númerico para el nuevo Presupuesto') 
+            
+        def cam_nom(self,nombre,valor):
+            elvalor = valor.get().strip()
+            if elvalor == '':
+                messagebox.showerror('Error', 'Ingrese un nombre válido para el Presupuesto')
+            else:  
+                main.cambiar_nomb_rub(self,
+                                 nombre.get(),
+                                 elvalor)
+                self.master.destroy()
+        
+        def deletethis(self,nombre):
+            sisas = messagebox.askokcancel(message="Esto borrará todas las Transacciones Asociadas\n¿Desea continuar?", title="Eliminar Rubro")
+            if sisas:
+                main.delete_rub(self,
+                                 nombre.get())
+                self.master.destroy()
+            
+            
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         
@@ -1695,24 +1758,43 @@ class main:
         
         else:
         
+            self.master.geometry("460x200")
             self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=32)
+            self.cbb = Combobox(self.frame,width=70)
             self.cbb['values'] = quitar_entradas(sql.get_rubros_obra(self.actual_obra))
             self.cbb.current(0)
             self.lblu = Label(self.frame,text="Ingrese Nuevo Presupuesto",font=("Arial",10))
-            self.entru = Entry(self.frame,width=35)
-            self.agregar = Button(self.frame, text = "Editar", 
+            self.entru = Entry(self.frame,width=33)
+            self.agregar = Button(self.frame, text = " \t\tEditar Presupuesto", 
                               command = lambda: cam_presu(self,
                                                               self.cbb,
                                                               self.entru))
+            self.lblnm = Label(self.frame,text="Ingrese Nuevo Nombre",font=("Arial",10))
+            self.entrnm = Entry(self.frame,width=33)
+            self.agregarnm = Button(self.frame, text = "Editar Nombre\t\t\t ", 
+                              command = lambda: cam_nom(self,
+                                                              self.cbb,
+                                                              self.entrnm))
+            self.erase = Button(self.frame, text = "\t\t       Eliminar Rubro", 
+                           command = lambda : deletethis(self, self.cbb))
+            self.quit = Button(self.frame, text = "Salir  \t\t\t\t ", 
+                           command = lambda : close_window(self))
             self.blank = Label(self.frame,text=" ")
-            self.lbly.pack()
-            self.cbb.pack()
-            self.lblu.pack()
-            self.entru.pack()
-            self.blank.pack()
-            self.quit.pack(side = "left")
-            self.agregar.pack(side = "right")
+            self.blank2 = Label(self.frame,text=" ")
+            self.blank3 = Label(self.frame,text=" ")
+            self.lbly.grid(column=0,row=0)
+            self.cbb.grid(column=0,row=1)
+            self.blank.grid(column=0,row=2)
+            self.lblu.grid(column=0,row=3, sticky = (E) )
+            self.entru.grid(column=0,row=4, sticky = (E))
+            self.lblnm.grid(column=0,row=3, sticky = (W) )
+            self.entrnm.grid(column=0,row=4, sticky = (W))
+            self.blank2.grid(column=0,row=5)
+            self.blank3.grid(column=0,row=7)
+            self.quit.grid(column=0,row=8, sticky = (W))
+            self.erase.grid(column=0,row=8, sticky = (E))
+            self.agregar.grid(column=0,row=6, sticky = (E))
+            self.agregarnm.grid(column=0,row=6, sticky = (W))
             self.master.resizable(False, False)
             self.frame.pack()
     
@@ -1842,11 +1924,15 @@ class main:
             tr = sql.get_facturas_vencidas()
         for i in tr:
 
-            datetime.date.today()
+            hoy = datetime.date.today().isocalendar()
+            fs = i[6].split('/')
+            lafecha = datetime.date(int(fs[2]),int(fs[1]),int(fs[0]))
+            lf = lafecha.isocalendar()
             nombre = sql.get_cliente(i[3])
             nombre = nombre[0] + ' - ' +nombre[1]
-
-            self.vista.insert("",END,text=nombre,values=(i[5],
+            
+            if (hoy[0] > lf[0]) or (hoy[0] == lf[0] and hoy[1]>=lf[1]):
+                self.vista.insert("",END,text=nombre,values=(i[5],
                               i[7],
                               i[4],
                               i[6]))
@@ -2001,11 +2087,11 @@ class main:
             plt.clf()
             
             
-            elrubroo = self.combograph.get()
+            elrubroo = self.combograph.get().split(': ')
             elrubro = 0
             presup = 0
             for i in rubs:
-                if i[2] == elrubroo:
+                if i[2] == elrubroo[1] and i[3] == elrubroo[0]:
                     elrubro = i[0]
                     presup = i[4]
                     break
@@ -2036,7 +2122,7 @@ class main:
 
             plt.xlabel('Rubro')
             plt.ylabel('Dinero')
-            plt.title(elrubroo)
+            plt.title(elrubroo[1]+' ('+elrubroo[0]+')')
             plt.xticks(index + bar_width, (' '))
             plt.legend()
 
@@ -2046,11 +2132,8 @@ class main:
             plt.close('all')
             
         def _quit():
-                    # stops mainloop
             plt.close('all')
             self.master.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
-
 
         self.buttoon = Button(self.frame, text="Salir", command=_quit)
         self.buttoon.pack(side="right")
@@ -2062,14 +2145,13 @@ class main:
         self.buttoon3.pack(side="left")
         self.buttoon4 = Button(self.frame, text="Buscar\nRubro", command=graph_4)
         self.buttoon4.pack(side="left")
-        self.combograph = Combobox(self.frame,width=32,state='disabled')
+        self.combograph = Combobox(self.frame,width=70,state='disabled')
         rublist = []
-        rub1 = sql.get_rubros_obra(self.actual_obra)
-        for k in rub1:
-            rublist.append(k.split(': ')[1])
+        for k in rubs:
+            rublist.append(k[3]+': '+k[2])
         self.combograph['values'] = tuple(rublist)
         self.combograph.current(0)
-        self.combograph.pack(side="left")
+        self.combograph.pack(side="bottom")
         if self.actual_obra != '':
             graph_1()
         

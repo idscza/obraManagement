@@ -133,11 +133,17 @@ class main:
                     command=lambda: self.ventana_editar_nombre(Toplevel(self.window)))
         self.cascada2.add_command(label='Cambiar Contraseña',
                     command=lambda: self.ventana_editar_pw(Toplevel(self.window)))
+        self.cascada3 = Menu(self.menus,tearoff=0)
+        self.cascada3.add_command(label='Retorno a Caja Mayor',
+                    command=lambda: self.ventana_retorno_arky(Toplevel(self.window)))      
+        self.cascada3.add_command(label='Transferir desde Arky',
+                    command=lambda: self.ventana_transferir_arky(Toplevel(self.window)))
         self.menus.add_cascade(label='Clientes',state='disabled', menu=self.cascada)
         self.menus.add_command(label='Ver Cobros Semana',state='disabled',
                     command=lambda: self.mostrar_facturas_pendientes(Toplevel(self.window)))
         self.menus.add_command(label='Pagar Cuentas',state='disabled',
                     command=lambda: self.ventana_pagar_cuentas(Toplevel(self.window)))
+        self.menus.add_cascade(label='Transferir a Arky',state='disabled', menu=self.cascada3)
         self.menus.add_command(label='Crear Usuario',state='disabled',
                     command=lambda: self.ventana_nuevo_usuario(Toplevel(self.window)))
         self.menus.add_cascade(label='Editar Usuario',state='disabled', menu=self.cascada2)
@@ -158,6 +164,7 @@ class main:
         if self.sudo:
             self.cascada.entryconfig('Agregar Cliente',state='normal')
             self.menus.entryconfig("Pagar Cuentas",state='normal')
+            self.menus.entryconfig("Transferir a Arky",state='normal')
         self.menus.entryconfig("Cerrar Sesión",state='normal')
         self.menus.entryconfig("Estado General",state='normal')
         self.cargar_obras()
@@ -340,6 +347,7 @@ class main:
         try:
             helper = sql.create_obra((nm,ct,dr,ie,fi,fc,cerlib,lic,aptos,info))
             self.rubros_por_defecto(helper)
+            self.updatear_arky(helper,nm)
             messagebox.showinfo('Crear Obra','Obra creada con éxito')
 
         except:
@@ -349,69 +357,75 @@ class main:
         self.actualizar_valores()
         return True
     
+    def updatear_arky(self,helper,nm):
+        sql.create_rubro((1,str(helper)+" - Retorno de "+nm,"Entrada",0,1))
+        sql.create_rubro((1,str(helper)+" - Transferencia a "+nm,"Durante",0,1))
+    
     def rubros_por_defecto(self,helper):
-        sql.create_rubro((helper,"Inversionistas","Entrada",0))
-        sql.create_rubro((helper,"Ventas","Entrada",0))
-        sql.create_rubro((helper,"Préstamos","Entrada",0))
+        sql.create_rubro((helper,"Inversionistas","Entrada",0,1))
+        sql.create_rubro((helper,"Ventas","Entrada",0,1))
+        sql.create_rubro((helper,"Préstamos","Entrada",0,1))
         
-        sql.create_rubro((helper,"Expensas","Antes",0))
-        sql.create_rubro((helper,"Compra Lote","Antes",0))
-        sql.create_rubro((helper,"Gastos Notariales","Antes",0))
-        sql.create_rubro((helper,"Tramites Curaduría","Antes",0))
-        sql.create_rubro((helper,"Gas","Antes",0))
-        sql.create_rubro((helper,"Luz","Antes",0))
-        sql.create_rubro((helper,"Agua","Antes",0))
-        sql.create_rubro((helper,"Ingeniería","Antes",0))
-        sql.create_rubro((helper,"Publicidad","Antes",0))
-        sql.create_rubro((helper,"Alquiler","Antes",0))
-        sql.create_rubro((helper,"Excavación","Antes",0))
-        sql.create_rubro((helper,"Plomería","Antes",0))
-        sql.create_rubro((helper,"Piso Laminado","Antes",0))
+        sql.create_rubro((helper,"Expensas","Antes",0,0))
+        sql.create_rubro((helper,"Compra Lote","Antes",0,0))
+        sql.create_rubro((helper,"Gastos Notariales","Antes",0,0))
+        sql.create_rubro((helper,"Tramites Curaduría","Antes",0,0))
+        sql.create_rubro((helper,"Gas","Antes",0,0))
+        sql.create_rubro((helper,"Luz","Antes",0,0))
+        sql.create_rubro((helper,"Agua","Antes",0,0))
+        sql.create_rubro((helper,"Ingeniería","Antes",0,0))
+        sql.create_rubro((helper,"Publicidad","Antes",0,0))
+        sql.create_rubro((helper,"Alquiler","Antes",0,0))
+        sql.create_rubro((helper,"Excavación","Antes",0,0))
+        sql.create_rubro((helper,"Plomería","Antes",0,0))
+        sql.create_rubro((helper,"Piso Laminado","Antes",0,0))
         
-        sql.create_rubro((helper,"Nomina Obreros","Durante",0))
-        sql.create_rubro((helper,"Nómina Administrativa","Durante",0))
-        sql.create_rubro((helper,"Limpieza Lote - Personal","Durante",0))
-        sql.create_rubro((helper,"Limpieza Lote - Volquetas","Durante",0))
-        sql.create_rubro((helper,"Limpieza Lote - Retroexcavadora","Durante",0))
-        sql.create_rubro((helper,"Pilotaje","Durante",0))
-        sql.create_rubro((helper,"Servicios Públicos","Durante",0))
-        sql.create_rubro((helper,"Agua","Durante",0))
-        sql.create_rubro((helper,"Luz","Durante",0))
-        sql.create_rubro((helper,"Gas","Durante",0))
-        sql.create_rubro((helper,"Placa 1 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 2 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 3 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 4 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 5 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 6 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 7 Hierro","Antes",0))
-        sql.create_rubro((helper,"Placa 1 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 2 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 3 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 4 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 5 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 6 Concreto","Durante",0))
-        sql.create_rubro((helper,"Placa 7 Concreto","Durante",0))
-        sql.create_rubro((helper,"Morteros","Durante",0))
-        sql.create_rubro((helper,"Mamposteria","Durante",0))
-        sql.create_rubro((helper,"Pintura","Durante",0))
-        sql.create_rubro((helper,"Estuco","Durante",0))
+        sql.create_rubro((helper,"Nomina Obreros","Durante",0,0))
+        sql.create_rubro((helper,"Nómina Administrativa","Durante",0,0))
+        sql.create_rubro((helper,"Limpieza Lote - Personal","Durante",0,0))
+        sql.create_rubro((helper,"Limpieza Lote - Volquetas","Durante",0,0))
+        sql.create_rubro((helper,"Limpieza Lote - Retroexcavadora","Durante",0,0))
+        sql.create_rubro((helper,"Pilotaje","Durante",0,0))
+        sql.create_rubro((helper,"Servicios Públicos","Durante",0,0))
+        sql.create_rubro((helper,"Agua","Durante",0,0))
+        sql.create_rubro((helper,"Luz","Durante",0,0))
+        sql.create_rubro((helper,"Gas","Durante",0,0))
+        sql.create_rubro((helper,"Placa 1 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 2 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 3 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 4 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 5 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 6 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 7 Hierro","Antes",0,0))
+        sql.create_rubro((helper,"Placa 1 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 2 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 3 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 4 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 5 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 6 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Placa 7 Concreto","Durante",0,0))
+        sql.create_rubro((helper,"Morteros","Durante",0,0))
+        sql.create_rubro((helper,"Mamposteria","Durante",0,0))
+        sql.create_rubro((helper,"Pintura","Durante",0,0))
+        sql.create_rubro((helper,"Estuco","Durante",0,0))
 
-        sql.create_rubro((helper,"Carpintería","Durante",0))
-        sql.create_rubro((helper,"Drywall","Durante",0))
-        sql.create_rubro((helper,"Ornamentación","Durante",0))
-        sql.create_rubro((helper,"Constatista Elevador","Durante",0))
-        sql.create_rubro((helper,"Ascensores","Durante",0))
-        sql.create_rubro((helper,"Cerámicas","Durante",0))
-        sql.create_rubro((helper,"Grifería","Durante",0))
+        sql.create_rubro((helper,"Carpintería","Durante",0,0))
+        sql.create_rubro((helper,"Drywall","Durante",0,0))
+        sql.create_rubro((helper,"Ornamentación","Durante",0,0))
+        sql.create_rubro((helper,"Constatista Elevador","Durante",0,0))
+        sql.create_rubro((helper,"Ascensores","Durante",0,0))
+        sql.create_rubro((helper,"Cerámicas","Durante",0,0))
+        sql.create_rubro((helper,"Grifería","Durante",0,0))
 
                
-        sql.create_rubro((helper,"Retorno Inversionistas","Después",0))
-        sql.create_rubro((helper,"Escritura","Después",0))
-        sql.create_rubro((helper,"Desenglobe","Después",0))
-        sql.create_rubro((helper,"Permisos Ventas","Después",0))
-        sql.create_rubro((helper,"Permiso IDU","Después",0))
-        sql.create_rubro((helper,"Reglamento Propiedad Horizontal","Después",0))
+        sql.create_rubro((helper,"Retorno Inversionistas","Después",0,1))
+        sql.create_rubro((helper,"Retorno Prestamistas","Después",0,1))
+        sql.create_rubro((helper,"Retorno Arky","Después",0,1))
+        sql.create_rubro((helper,"Escritura","Después",0,0))
+        sql.create_rubro((helper,"Desenglobe","Después",0,0))
+        sql.create_rubro((helper,"Permisos Ventas","Después",0,0))
+        sql.create_rubro((helper,"Permiso IDU","Después",0,0))
+        sql.create_rubro((helper,"Reglamento Propiedad Horizontal","Después",0,0))
               
         
     def validar_fecha(m,d,a):
@@ -425,16 +439,18 @@ class main:
     def agregar_rub(self,nombre,tipo,valor):
         
         nombre = nombre.replace(":","")
+        nombre = nombre.replace("/","")
         hue = sql.select_rubros_obra(self.actual_obra)
         
         for fact in hue:
-            if nombre == fact[2]:
+            if nombre == fact[2] and tipo == fact[3]:
                 messagebox.showerror('Error','El rubro ya existe')
                 return
         sql.create_rubro((self.actual_obra,
                                     nombre,
                                     tipo,
-                                    valor))
+                                    valor,
+                                    0))
         messagebox.showinfo('Crear Rubro','Rubro creado con éxito')
         self.actualizar_valores()
 
@@ -445,9 +461,12 @@ class main:
         
         verify = nombre.split(": ")[0]
         realname = nombre.split(": ")[1]
-        time = nombre.split(": ")[0].split("/")[1]
+        if verify != "Entrada":
+            time = nombre.split(": ")[0].split("/")[1]
+        else:
+            time = "Entrada"
         asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
-        
+
         if cli != "Ninguno":
             elkli = cli.split(' - ')[0]
         else:
@@ -488,11 +507,14 @@ class main:
         messagebox.showinfo('Presupuesto','El presupuesto se actualizó con éxito')
         
     def cambiar_nomb_rub(self,nombre,valor):  
+        valor = valor.replace(":","")
+        valor = valor.replace("/","")
         realname = nombre.split(": ")[1]
-        if realname == 'Retorno Inversionistas':
+        time = nombre.split(": ")[0].split("/")[1]
+        acambiar = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra),completo=True)
+        if acambiar[5]:
             messagebox.showerror('Error','Este rubro no se puede renombrar')
-        else:
-            time = nombre.split(": ")[0].split("/")[1]
+        else:      
             asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
             sql.update_nombre_rubro(valor,asociador)
             self.actualizar_valores()
@@ -500,14 +522,16 @@ class main:
                 
     def delete_rub(self,nombre):  
         realname = nombre.split(": ")[1]
-        if realname == 'Retorno Inversionistas':
+        time = nombre.split(": ")[0].split("/")[1]
+        acambiar = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra),completo=True)
+        if acambiar[5]:
             messagebox.showerror('Error','Este rubro no se puede borrar')
         else:
-            time = nombre.split(": ")[0].split("/")[1]
             asociador = sql.get_rubro_by_nombre_obra((realname,time,self.actual_obra))
             sql.delete_rubro(asociador)
             self.actualizar_valores()
-            messagebox.showinfo('Eliminar Rubro','El rubro se eliminó con éxito')        
+            messagebox.showinfo('Eliminar Rubro','El rubro se eliminó con éxito')  
+            
     def editar_obra(self,nombre,valor):     
         translate = {'Nombre':'nombre',
                      'Ciudad':'ciudad',
@@ -986,7 +1010,8 @@ class main:
             elif n.get() == '' or td.get() == '' or doc.get() == '' :
                 messagebox.showerror('Error', 'El nombre y documento no deben ser vacíos')
             else:
-                sql.create_cliente((n.get(),td.get(),doc.get(),ce.get(),tel.get(),dirc.get()))
+                nn = n.get().replace("-","")
+                sql.create_cliente((nn,td.get(),doc.get(),ce.get(),tel.get(),dirc.get()))
                 messagebox.showinfo('Éxito','Se ha agregado el cliente')
                 self.master.destroy()
         self.quit = Button(self.frame, text = " Cancelar ", 
@@ -1044,6 +1069,7 @@ class main:
             self.menus.entryconfig("Pagar Cuentas",state='disabled')
             self.menus.entryconfig("Ver Cobros Semana",state='disabled')
             self.cascada.entryconfig('Agregar Cliente',state='disabled')
+            self.menus.entryconfig("Transferir a Arky",state='disabled')
             self.menus.entryconfig("Clientes",state='disabled')
             self.actual_user = ''
             self.actual_obra = 0
@@ -1221,7 +1247,7 @@ class main:
                                  float(elvalor))
                 self.master.destroy()
             except:
-                messagebox.showerror('Error', 'Ingrese un valor númerico para el valor del rubro')      
+                messagebox.showerror('Error', 'Ingrese un valor numérico para el valor del rubro')      
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         if self.actual_obra == '':
@@ -1283,7 +1309,7 @@ class main:
                                  cli.get())
                 self.master.destroy()
             except:
-                messagebox.showerror('Error', 'Ingrese un valor númerico para el valor de la transacción') 
+                messagebox.showerror('Error', 'Ingrese un valor numérico para el valor de la transacción') 
         self.quit = Button(self.frame, text = " Salir ", 
                            command = lambda : close_window(self))
         
@@ -1572,7 +1598,6 @@ class main:
                                      self.actual_user,
                                      cli1,
                                      0,
-                                     0,0,
                                      apto,
                                      tipocont,
                                      fechita))
@@ -1621,7 +1646,7 @@ class main:
                 ingeg = 'Entrada'
                 tip = 'Entrada'
             elif lacuot[7] == 'Pago a Cliente':
-                pc = 'Retorno Inversionistas'
+                pc = 'Retorno Prestamistas'
                 ingeg = 'Salida'
                 tip = 'Después'   
         
@@ -1726,7 +1751,7 @@ class main:
                                  float(elvalor))
                 self.master.destroy()
             except:
-                messagebox.showerror('Error', 'Ingrese un valor númerico para el nuevo Presupuesto') 
+                messagebox.showerror('Error', 'Ingrese un valor numérico para el nuevo Presupuesto') 
             
         def cam_nom(self,nombre,valor):
             elvalor = valor.get().strip()
@@ -1940,7 +1965,174 @@ class main:
         self.quit.pack()
         self.master.resizable(False, False)
         self.frame.pack()
-    #Ventana para ver graficas de obra
+        
+    def ventana_transferir_arky(self,master):        
+        if self.master != None:
+            self.master.destroy()
+        self.master = master
+        self.frame = Frame(self.master)
+        self.master.geometry("250x150")
+
+        def close_window(self):
+            self.master.destroy() 
+        
+        def transferir_dinero(self,valor,origen):
+            
+            if 1:
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                float(elvalor)
+                main.transferir_a_obra(self,
+                                 float(elvalor),
+                                 origen.get())
+                self.master.destroy()
+            else:
+                messagebox.showerror('Error', 'Ingrese un valor numérico para transferir')
+        
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))   
+
+        self.lbltrnf = Label(self.frame,text="Ingrese Monto a Transferir",font=("Arial",10))
+        self.blank = Label(self.frame,text=" ",font=("Arial",10))
+        self.atransf = Entry(self.frame,width=35)
+        self.ttransf = Button(self.frame, text = "Aceptar", 
+                           command = lambda : transferir_dinero(self,self.atransf,self.cbt))
+        self.cbt = Combobox(self.frame,width=32)
+        self.lblorg = Label(self.frame,text="Ingrese Origen de Fondos",font=("Arial",10))
+        self.cbt['values'] = ('Ventas','Inversionistas','Préstamos')
+        self.cbt.current(0)
+         
+        self.lbltrnf.pack()
+        self.atransf.pack()
+        self.lblorg.pack()
+        self.cbt.pack()
+        self.blank.pack()
+        self.ttransf.pack(side = 'right')
+        self.quit.pack(side="left")
+        self.master.resizable(False, False)
+        self.frame.pack()
+
+    def ventana_retorno_arky(self,master):        
+        if self.master != None:
+            self.master.destroy()
+        self.master = master
+        self.frame = Frame(self.master)
+        self.master.geometry("250x100")
+
+        def close_window(self):
+            self.master.destroy() 
+        
+        def retornar_dinero(self,valor):
+            
+            if 1:
+                elvalor = valor.get().strip()
+                if elvalor == '':
+                    elvalor = 0
+                float(elvalor)
+                sql.get_obra(self.actual_obra)
+                sisas = messagebox.askokcancel(message="Esto transferirá dinero al fondo general\n¿Desea continuar?", title="Retornar Dinero")
+                if sisas:
+                    main.retornar_arky(self,
+                                 float(elvalor))
+                self.master.destroy()
+            else:
+                messagebox.showerror('Error', 'Ingrese un valor numérico para retornar')
+        
+        self.quit = Button(self.frame, text = " Salir ", 
+                           command = lambda : close_window(self))   
+
+        self.lblret = Label(self.frame,text="Ingrese Monto a Retornar",font=("Arial",10))
+        self.blank = Label(self.frame,text=" ",font=("Arial",10))
+        self.areto = Entry(self.frame,width=35)
+        self.retorn = Button(self.frame, text = "Aceptar", 
+                           command = lambda : retornar_dinero(self,self.areto))
+        
+        
+        self.lblret.pack()
+        self.areto.pack()
+        self.blank.pack()
+        self.retorn.pack(side = 'right')
+        self.quit.pack(side="left")
+        self.master.resizable(False, False)
+        self.frame.pack()
+        
+    def retornar_arky(self,valor):
+        
+        if self.actual_obra == '1':
+            messagebox.showerror('Error', 'No puedes Transferir Dinero de Arky a Arky')
+        else:
+            rubs = sql.select_rubros_obra((self.actual_obra,))
+            rubar = sql.select_rubros_obra((1,))
+            inn = 0
+            out = 0
+            for rub in rubar:
+
+                if rub[2].split(' - ')[0] == self.actual_obra and rub[3] == 'Entrada':
+                    inn = rub[0]
+                    
+            for erub in rubs:
+                if erub[2] == 'Retorno Arky' and erub[3] == 'Después':
+                    out = erub[0]
+                    
+            hue = sql.select_transacciones_obra(self.actual_obra)
+
+            if self.verificar_dinero(hue, valor):
+                sql.create_transaccion((self.actual_obra,
+                                    self.actual_user,
+                                    out,
+                                    valor,
+                                    'Salida',
+                                    0
+                                    ))
+                sql.create_transaccion((1,
+                                    self.actual_user,
+                                    inn,
+                                    valor,
+                                    'Entrada',
+                                    0
+                                    ))                
+                messagebox.showinfo('Retornar Dinero','Retorno realizado con éxito')
+                self.actualizar_valores()
+            else:
+                messagebox.showerror('Error','El Retorno excede el dinero disponible')
+            
+    def transferir_a_obra(self,valor,origen):
+        if self.actual_obra == '1':
+            messagebox.showerror('Error', 'No puedes Transferir Dinero de Arky a Arky')
+        else:
+            rubs = sql.select_rubros_obra((self.actual_obra,))
+            rubar = sql.select_rubros_obra((1,))
+            inn = 0
+            out = 0
+            for rub in rubar:
+                if rub[2].split(' - ')[0] == self.actual_obra and rub[3] == 'Durante':
+                    inn = rub[0]     
+            for erub in rubs:
+                if erub[2] == origen and erub[3] == 'Entrada':
+                    out = erub[0]
+                    
+            hue = sql.select_transacciones_obra("1")
+
+            if self.verificar_dinero(hue, valor):
+                sql.create_transaccion((self.actual_obra,
+                                    self.actual_user,
+                                    out,
+                                    valor,
+                                    'Entrada',
+                                    0
+                                    ))
+                sql.create_transaccion((1,
+                                    self.actual_user,
+                                    inn,
+                                    valor,
+                                    'Salida',
+                                    0
+                                    ))                
+                messagebox.showinfo('Retornar Dinero','Transferencia realizada con éxito')
+                self.actualizar_valores()
+            else:
+                messagebox.showerror('Error','La transferencia excede el dinero disponible')
     
     def  ver_graficas(self,master):
         if self.master != None:

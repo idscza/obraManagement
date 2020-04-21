@@ -273,7 +273,7 @@ def get_rubros_obra(obra_id):
         rta = tuple(rta)
         return rta
 
-def get_rubro_by_nombre_obra(combo):
+def get_rubro_by_nombre_obra(combo,completo=False):
     database = "database/trialdb.db"
  
     # create a database connection
@@ -284,7 +284,10 @@ def get_rubro_by_nombre_obra(combo):
         cur.execute(sql,combo)
  
         rows = cur.fetchall()
-        return rows[0][0]
+        if completo:
+            return rows[0]
+        else:
+            return rows[0][0]
 
 def get_nombre_rubro(eid):
     database = "database/trialdb.db"
@@ -360,8 +363,8 @@ def create_rubro(rubro):
     conn = create_connection(database)
     with conn:
  
-        sql = ''' INSERT INTO rubros(obra_id,nombre,tipo,presupuesto)
-              VALUES(?,?,?,?) '''
+        sql = ''' INSERT INTO rubros(obra_id,nombre,tipo,presupuesto,persistir)
+              VALUES(?,?,?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, rubro)
         return cur.lastrowid 
@@ -388,8 +391,8 @@ def create_contrato(contrato):
     with conn:
  
         sql = ''' INSERT INTO contratos(obra_id, responsable,cliente_id,saldo,
-                                    cuota,semanas,numero_apto,tipo,fecha_ini)
-              VALUES(?,?,?,?,?,?,?,?,?) '''
+                                    numero_apto,tipo,fecha_ini)
+              VALUES(?,?,?,?,?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, contrato)
         return cur.lastrowid 
@@ -471,7 +474,7 @@ def get_tipocontrato_by_cuota(cuota):
         cur = conn.cursor()
         cur.execute(sql,(elcontrato,))
         rows = cur.fetchall()
-        eltipo = rows[0][8]
+        eltipo = rows[0][6]
         return eltipo
     
 def cambiar_pagado(a_cambiar):
@@ -533,3 +536,13 @@ def get_facturas_vencidas():
             if i[8] == "Por Pagar":
                 temp2.append(i)
         return temp2
+    
+def create_arky():
+    arkyid = create_obra(('Arky','Bogotá','','','','','','','',''))
+    create_rubro((arkyid,"Inversionistas","Entrada",0,1))
+    create_rubro((arkyid,"Ventas","Entrada",0,1))
+    create_rubro((arkyid,"Préstamos","Entrada",0,1))
+    create_rubro((arkyid,"Retorno Inversionistas","Después",0,1))
+    create_rubro((arkyid,"Retorno Prestamistas","Después",0,1))
+    
+    

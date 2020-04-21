@@ -79,6 +79,7 @@ def main():
                                         nombre text NOT NULL,
                                         tipo text NOT NULL,
                                         presupuesto real,
+                                        persistir integer NOT NULL,
                                         FOREIGN KEY (obra_id) REFERENCES obras (id)
                                     ); """
     
@@ -103,8 +104,6 @@ def main():
                                     responsable text NOT NULL,
                                     cliente_id id NOT NULL,
                                     saldo real NOT NULL,
-                                    cuota real NOT NULL,
-                                    semanas integer NOT NULL,
                                     numero_apto text,
                                     tipo text NOT NULL,
                                     fecha_ini text NOT NULL, 
@@ -158,5 +157,6 @@ def main():
         print("Error! cannot create the database connection.")
     
     sql.create_user(("admin","admin","Administrador",1))
+    sql.create_arky()
         
 main()

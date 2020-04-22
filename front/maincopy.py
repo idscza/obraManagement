@@ -10,8 +10,10 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter import messagebox
 from tkinter.ttk import *
+from tkinter import font
 import sqlAccess as sql
 import datetime
+
 from PIL import Image, ImageTk
 
 from matplotlib.backends.backend_tkagg import (
@@ -35,14 +37,17 @@ class main:
         self.minaster = None
         self.window = window
         self.window.title("Manejo de Obras")
-        self.window.geometry('1270x660')
+        self.window.geometry('1330x670')
         
         self.actual_user = StringVar()
         self.actual_obra = IntVar()
         self.sudo = BooleanVar()
         self.quotes = []
+        
+        bigfont = font.Font(family="Arial",size=11)
+        root.option_add("*TCombobox*Listbox*Font", bigfont)
 
-        self.lbljaja = Label(window, text="",font=("Arial",11))
+        self.lbljaja = Label(window, text="",font=("Arial",12))
         self.lbljaja.grid(column=0, row=1, sticky =(N))
         
         self.lbljiji = Label(window, text="",font=("Arial",12))
@@ -60,56 +65,62 @@ class main:
     
         self.lbl2 = Label(window, text='         ')
         self.lbl2.grid(column=1,row=1)
+        
+        self.lblemer = Label(window, text='         '*14)
+        self.lblemer.grid(column=0,row=0)
     
         self.txt = scrolledtext.ScrolledText(window,width=98,height=31,font=("Arial",12))
         self.txt.grid(column=2, row=1)
     
-        self.combo = Combobox(window,width=32)
+        self.combo = Combobox(window,width=32,font=("Arial",11),state='readonly')
         self.window.bind('<<ComboboxSelected>>', self.actualizar_valoress)
         self.combo.grid(column = 0, row = 2, sticky = (E))
     
-        self.lbl2 = Label(window, text='       Obras\n     Actuales')
+        self.lbl2 = Label(window, text='       Obras\n     Actuales',font=("Arial",11))
         self.lbl2.grid(column = 0, row = 2, sticky = (W))
+        
+        s = Style()
+        s.configure('my.TButton', font=('Arial', 11))
     
-        self.btn = Button(window, text="Agregar\n  Obra",state='disabled'
+        self.btn = Button(window, text="Agregar\n  Obra",state='disabled',style='my.TButton'
                           ,command= lambda: self.ventana_agregar_o(Toplevel(self.window)))
         self.btn.grid(column=0, row=3, sticky = (W))
         
-        self.btn7 = Button(window, text="Editar\nObra",state='disabled'
+        self.btn7 = Button(window, text="Editar\nObra",state='disabled',style='my.TButton'
                           ,command= lambda: self.ventana_editar_o(Toplevel(self.window)))
         self.btn7.grid(column=0, row=3, sticky = (E))
         
-        self.btn8 = Button(window, text="Editar\nRubro",state='disabled'
+        self.btn8 = Button(window, text="Editar\nRubro",state='disabled',style='my.TButton'
                           ,command= lambda: self.ventana_editar_p(Toplevel(self.window)))
         self.btn8.grid(column=0, row=3)
     
-        self.btn1 = Button(window, text="Agregar Rubro            ",
+        self.btn1 = Button(window, text="Agregar Rubro             ",style='my.TButton',
                            command = lambda: self.ventana_agregar_r(Toplevel(self.window)),
                            state='disabled')
         self.btn1.grid(column=2, row=2, sticky = (W))
         
         
-        self.btn3 = Button(window, text="Mostrar Transacciones",
+        self.btn3 = Button(window, text="Mostrar Transacciones",style='my.TButton',
                            command = lambda: self.ventana_mostrar_f(Toplevel(self.window)),
                            state='disabled')
         self.btn3.grid(column=2, row=2, sticky = (E))
     
-        self.btn2 = Button(window, text="Registrar Transacción",
+        self.btn2 = Button(window, text="Registrar Transacción",style='my.TButton',
                            command=lambda: self.ventana_agregar_t(Toplevel(self.window))
                                ,state='disabled')
         self.btn2.grid(column=2, row=2)
         
-        self.btn4 = Button(window, text="  Registrar Contrato  ",
+        self.btn4 = Button(window, text="   Registrar Contrato   ",style='my.TButton',
                            command=lambda: self.ventana_agregar_cont(Toplevel(self.window))
                                ,state='disabled')
         self.btn4.grid(column=2, row=3)
         
-        self.btn5 = Button(window, text="Información Obra        ",
+        self.btn5 = Button(window, text="Información Obra         ",style='my.TButton',
                            command=lambda: self.ventana_info_obra(Toplevel(self.window))
                                ,state='disabled')
         self.btn5.grid(column=2, row=3, sticky = (E))
         
-        self.btn6 = Button(window, text="Ver Gráficas                 ",
+        self.btn6 = Button(window, text="Ver Gráficas                 ",style='my.TButton',
                            command=lambda: self.ver_graficas(Toplevel(self.window))
                                ,state='disabled')
         self.btn6.grid(column=2, row=3, sticky = (W))
@@ -577,7 +588,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("300x150")
         self.frame = Frame(self.master)
         
         def close_window(self):
@@ -598,14 +609,14 @@ class main:
             if datetime.date.today().weekday() == 0:
                 self.mostrar_facturas_pendientes(Toplevel(self.window))
 
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
-        self.lblus = Label(self.frame,text="Usuario",font=("Arial",10))
-        self.entrus = Entry(self.frame,width=35)
-        self.lblpw = Label(self.frame,text="Contraseña",font=("Arial",10))
-        self.entrpw = Entry(self.frame,show="*",width=35)
+        self.lblus = Label(self.frame,text="Usuario",font=("Arial",11))
+        self.entrus = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblpw = Label(self.frame,text="Contraseña",font=("Arial",11))
+        self.entrpw = Entry(self.frame,show="*",width=35,font=("Arial",11))
         self.blank = Label(self.frame,text=" ")
-        self.agregar = Button(self.frame, text = "Iniciar Sesión", 
+        self.agregar = Button(self.frame, text = "Iniciar Sesión",style='my.TButton', 
                               command = lambda: iniciar_sesion(self.entrus,self.entrpw))
         self.lblus.pack()
         self.entrus.pack()
@@ -633,7 +644,7 @@ class main:
             
         data = self.generar_estado(sql.select_all_obras())
             
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.lbltt = Label(self.frame,text="Presupuesto General",font=("Arial",14))
         self.lblio = Label(self.frame,text="Ingresos: $"+str(data[0][0])+
@@ -690,13 +701,13 @@ class main:
             self.master.destroy()
             
         self.master = master
-        self.master.geometry("370x440")
+        self.master.geometry("390x420")
         self.frame = Frame(self.master)
         
         def close_window(self):
             self.master.destroy()
             
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))       
         
         data = sql.get_obra(self.actual_obra)
@@ -718,7 +729,7 @@ class main:
             self.lblt = Label(self.frame,text="Fecha Inicio: "+data[5]+" Fecha Culminación: "
                           +data[6],font=("Arial",11))
             self.lblv = Label(self.frame,text = "Información Adicional",font=("Arial",12))
-            self.lblw = scrolledtext.ScrolledText(self.frame,width=40,height=7)
+            self.lblw = scrolledtext.ScrolledText(self.frame,width=40,height=7,font=("Arial",12))
             self.lblw.insert(INSERT,data[10])
             temp = sql.select_transacciones_obra(self.actual_obra)
             temp2 = sql.select_rubros_obra(self.actual_obra)
@@ -758,7 +769,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("280x250")
+        self.master.geometry("300x280")
         self.frame = Frame(self.master)
          
         def close_window(self):
@@ -781,25 +792,25 @@ class main:
                 sql.create_user((theusr,pw.get(),nm.get(),sud))
                 messagebox.showinfo('Éxito','Se ha agregado el usuario')
             self.master.destroy()
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
-        self.lblus = Label(self.frame,text="Nuevo Usuario",font=("Arial",10))
-        self.entrus = Entry(self.frame,width=35)
-        self.lblnm = Label(self.frame,text="Nombre",font=("Arial",10))
-        self.entrnm = Entry(self.frame,width=35)
-        self.lblpw = Label(self.frame,text="Contraseña",font=("Arial",10))
-        self.entrpw = Entry(self.frame,show="*",width=35)
-        self.lblpw2 = Label(self.frame,text="Confirme la contraseña",font=("Arial",10))
-        self.entrpw2 = Entry(self.frame,show="*",width=35)
+        self.lblus = Label(self.frame,text="Nuevo Usuario",font=("Arial",11))
+        self.entrus = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblnm = Label(self.frame,text="Nombre",font=("Arial",11))
+        self.entrnm = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblpw = Label(self.frame,text="Contraseña",font=("Arial",11))
+        self.entrpw = Entry(self.frame,show="*",width=35,font=("Arial",11))
+        self.lblpw2 = Label(self.frame,text="Confirme la contraseña",font=("Arial",11))
+        self.entrpw2 = Entry(self.frame,show="*",width=35,font=("Arial",11))
         self.blank = Label(self.frame,text=" ")
-        self.lblsudo = Label(self.frame,text="Tipo de Usuario",font=("Arial",10))
-        self.combse1 = Combobox(self.frame,width=32)
+        self.lblsudo = Label(self.frame,text="Tipo de Usuario",font=("Arial",11))
+        self.combse1 = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
         if self.sudo:
             self.combse1['values'] = ('Normal','Administrador')
         else:
             self.combse1['values'] = ('Normal')
         self.combse1.current(0)
-        self.agregar = Button(self.frame, text = "Registrar", 
+        self.agregar = Button(self.frame, text = "Registrar",style='my.TButton', 
                               command = lambda: agregar_el_user(self.entrus,
                                                                 self.entrpw,
                                                                 self.entrpw2,
@@ -828,7 +839,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x170")
+        self.master.geometry("300x170")
         self.frame = Frame(self.master)
          
         def close_window(self):
@@ -841,16 +852,16 @@ class main:
                 sql.update_nuser(self.actual_user,n1.get())
                 messagebox.showinfo('Éxito','Se ha modificado su nombre')
             self.master.destroy()
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
         thename = sql.get_name_by_user(self.actual_user)
         self.actn = Label(self.frame,text = thename,font=("Arial",12))
-        self.lblnn = Label(self.frame,text="Nuevo Nombre",font=("Arial",10))
-        self.entrnn = Entry(self.frame,width=35)
-        self.lblnn2 = Label(self.frame,text="Confirme nuevo Nombre",font=("Arial",10))
-        self.entrnn2 = Entry(self.frame,width=35)
+        self.lblnn = Label(self.frame,text="Nuevo Nombre",font=("Arial",11))
+        self.entrnn = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblnn2 = Label(self.frame,text="Confirme nuevo Nombre",font=("Arial",11))
+        self.entrnn2 = Entry(self.frame,width=35,font=("Arial",11))
         self.blank = Label(self.frame,text=" ")
-        self.agregar = Button(self.frame, text = "Cambiar", 
+        self.agregar = Button(self.frame, text = "Cambiar",style='my.TButton', 
                               command = lambda: editar_el_nuser(self.entrnn,
                                                                 self.entrnn2))
         self.actn.pack()
@@ -871,7 +882,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x140")
+        self.master.geometry("300x150")
         self.frame = Frame(self.master)
          
         def close_window(self):
@@ -884,14 +895,14 @@ class main:
                 sql.update_puser(self.actual_user,p1.get())
                 messagebox.showinfo('Éxito','Se ha modificado su contraseña')
             self.master.destroy()
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
-        self.lblp = Label(self.frame,text="Nueva Contraseña",font=("Arial",10))
-        self.entrp = Entry(self.frame,show="*",width=35)
-        self.lblp2 = Label(self.frame,text="Confirme nuevo Nombre",font=("Arial",10))
-        self.entrp2 = Entry(self.frame,show="*",width=35)
+        self.lblp = Label(self.frame,text="Nueva Contraseña",font=("Arial",11))
+        self.entrp = Entry(self.frame,show="*",width=35,font=("Arial",11))
+        self.lblp2 = Label(self.frame,text="Confirme nueva Contraseña",font=("Arial",11))
+        self.entrp2 = Entry(self.frame,show="*",width=35,font=("Arial",11))
         self.blank = Label(self.frame,text=" ")
-        self.agregar = Button(self.frame, text = "Cambiar", 
+        self.agregar = Button(self.frame, text = "Cambiar",style='my.TButton', 
                               command = lambda: editar_el_puser(self.entrp,
                                                                 self.entrp2))
         self.lblp.pack()
@@ -917,7 +928,7 @@ class main:
         def close_window(self):
             self.master.destroy()      
         
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.vista = Treeview(self.frame, columns = ("td", "id"))
         self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
@@ -943,7 +954,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("620x300")
+        self.master.geometry("620x310")
         self.frame = Frame(self.master)
             
         def close_window(self):
@@ -957,7 +968,7 @@ class main:
                 self.transacs.insert("",END,text=sql.get_obra(i[1])[1],
                                      values= (sql.get_nombre_rubro((i[3],)), i[4]))
             
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.transacs = Treeview(self.frame, columns = ("td", "id"))
         self.transacs.heading("#0", text="Obra")
@@ -974,9 +985,9 @@ class main:
             listc.append(i[2]+" - "+i[0])
         listc = tuple(listc)
         
-        self.comboclients = Combobox(self.frame,width=32)
+        self.comboclients = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
         self.comboclients['values'] = listc
-        self.actu = Button(self.frame, text = " Actualizar ", 
+        self.actu = Button(self.frame, text = " Actualizar ",style='my.TButton', 
                            command = lambda : actualizar(self.comboclients))
         self.comboclients.pack()
         self.actu.pack()
@@ -994,7 +1005,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x320")
+        self.master.geometry("300x350")
         self.frame = Frame(self.master)
          
         def close_window(self):
@@ -1014,23 +1025,23 @@ class main:
                 sql.create_cliente((nn,td.get(),doc.get(),ce.get(),tel.get(),dirc.get()))
                 messagebox.showinfo('Éxito','Se ha agregado el cliente')
                 self.master.destroy()
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.lbltit = Label(self.frame,text="Ingrese los Datos",font=("Arial",12))
-        self.lbln = Label(self.frame,text="Nombre",font=("Arial",10))
-        self.entrn = Entry(self.frame,width=35)
-        self.lbltd = Label(self.frame,text="Tipo de Documento",font=("Arial",10))
-        self.entrtd = Entry(self.frame,width=35)
-        self.lbld = Label(self.frame,text="Documento",font=("Arial",10))
-        self.entrd = Entry(self.frame,width=35)
-        self.lblce = Label(self.frame,text="Correo Electrónico",font=("Arial",10))
-        self.entrce = Entry(self.frame,width=35)
-        self.lblt = Label(self.frame,text="Teléfono",font=("Arial",10))
-        self.entrt = Entry(self.frame,width=35)
-        self.lbltdr = Label(self.frame,text="Dirección",font=("Arial",10))
-        self.entrtdr = Entry(self.frame,width=35)
+        self.lbln = Label(self.frame,text="Nombre",font=("Arial",11))
+        self.entrn = Entry(self.frame,width=35,font=("Arial",11))
+        self.lbltd = Label(self.frame,text="Tipo de Documento",font=("Arial",11))
+        self.entrtd = Entry(self.frame,width=35,font=("Arial",11))
+        self.lbld = Label(self.frame,text="Documento",font=("Arial",11))
+        self.entrd = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblce = Label(self.frame,text="Correo Electrónico",font=("Arial",11))
+        self.entrce = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblt = Label(self.frame,text="Teléfono",font=("Arial",11))
+        self.entrt = Entry(self.frame,width=35,font=("Arial",11))
+        self.lbltdr = Label(self.frame,text="Dirección",font=("Arial",11))
+        self.entrtdr = Entry(self.frame,width=35,font=("Arial",11))
         self.blank = Label(self.frame,text=" ")
-        self.agregar = Button(self.frame, text = "Registrar", 
+        self.agregar = Button(self.frame, text = "Registrar",style='my.TButton', 
                               command = lambda: agregar_el_cliente(self.entrn,
                                                                 self.entrtd,
                                                                 self.entrd,
@@ -1099,7 +1110,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x465")
+        self.master.geometry("300x500")
         self.frame = Frame(self.master)
           
         def close_window(self):
@@ -1123,53 +1134,53 @@ class main:
             if sepudo:
                 self.master.destroy()
             
-        self.quit = Button(self.frame, text = " Salir ",
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton',
                            command = lambda : close_window(self))
-        self.lbla = Label(self.frame,text="Nombre de la Obra",font=("Arial",10))
-        self.entra = Entry(self.frame,width=35)
-        self.lblb = Label(self.frame,text="Ciudad",font=("Arial",10))
-        self.entrb = Entry(self.frame,width=35)
-        self.lblc = Label(self.frame,text="Dirección",font=("Arial",10))
-        self.entrc = Entry(self.frame,width=35)
-        self.lbld = Label(self.frame,text="Encargado",font=("Arial",10))
-        self.entrd = Entry(self.frame,width=35)
-        self.lble = Label(self.frame,text="Fecha Inicio",font=("Arial",10))
-        self.combe1 = Combobox(self.frame,width=8)        
+        self.lbla = Label(self.frame,text="Nombre de la Obra",font=("Arial",11))
+        self.entra = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblb = Label(self.frame,text="Ciudad",font=("Arial",11))
+        self.entrb = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblc = Label(self.frame,text="Dirección",font=("Arial",11))
+        self.entrc = Entry(self.frame,width=35,font=("Arial",11))
+        self.lbld = Label(self.frame,text="Encargado",font=("Arial",11))
+        self.entrd = Entry(self.frame,width=35,font=("Arial",11))
+        self.lble = Label(self.frame,text="Fecha Inicio",font=("Arial",11))
+        self.combe1 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')        
         self.combe1['values'] = ('ENE','FEB','MAR','ABR','MAY','JUN',
                                  'JUL','AGO','SEP','OCT','NOV','DIC')
         self.combe1.current(0)
-        self.combe2 = Combobox(self.frame,width=8)
+        self.combe2 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')
         self.combe2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
                                  17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combe2.current(0)
-        self.combe3 = Combobox(self.frame,width=8)
+        self.combe3 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')
         self.combe3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
                                   2024,2025,2026,2027,2028,2029,2030,2031,2032,
                                   2033,2034,2035)
         self.combe3.current(0)
-        self.lblf = Label(self.frame,text="Fecha Culminación",font=("Arial",10))
-        self.combf1 = Combobox(self.frame,width=8)        
+        self.lblf = Label(self.frame,text="Fecha Culminación",font=("Arial",11))
+        self.combf1 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')        
         self.combf1['values'] = ('ENE','FEB','MAR','ABR','MAY','JUN',
                                  'JUL','AGO','SEP','OCT','NOV','DIC')
         self.combf1.current(0)
-        self.combf2 = Combobox(self.frame,width=8)
+        self.combf2 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')
         self.combf2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
                                  17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combf2.current(0)
-        self.combf3 = Combobox(self.frame,width=8)
+        self.combf3 = Combobox(self.frame,width=8,font=("Arial",11),state='readonly')
         self.combf3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
                                   2024,2025,2026,2027,2028,2029,2030,2031,2032,
                                   2033,2034,2035)
         self.combf3.current(0)
-        self.lblg = Label(self.frame,text="Certificado de Libertad",font=("Arial",10))
-        self.entrg = Entry(self.frame,width=35)
-        self.lblh = Label(self.frame,text="Licencia de Construcción",font=("Arial",10))
-        self.entrh = Entry(self.frame,width=35)
-        self.lblap = Label(self.frame,text="Apartamentos Disponibles",font=("Arial",10))
-        self.entrap = Entry(self.frame,width=35)
-        self.lbli = Label(self.frame,text="Información Adicional",font=("Arial",10))
-        self.entri = Entry(self.frame,width=35)
-        self.agregar = Button(self.frame, text = "Agregar",
+        self.lblg = Label(self.frame,text="Certificado de Libertad",font=("Arial",11))
+        self.entrg = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblh = Label(self.frame,text="Licencia de Construcción",font=("Arial",11))
+        self.entrh = Entry(self.frame,width=35,font=("Arial",11))
+        self.lblap = Label(self.frame,text="Apartamentos Disponibles",font=("Arial",11))
+        self.entrap = Entry(self.frame,width=35,font=("Arial",11))
+        self.lbli = Label(self.frame,text="Información Adicional",font=("Arial",11))
+        self.entri = Entry(self.frame,width=35,font=("Arial",11))
+        self.agregar = Button(self.frame, text = "Agregar",style='my.TButton',
                               command = lambda: agregar_la_obra(self,
                                                                 self.entra,
                                                                 self.entrb,
@@ -1224,7 +1235,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x200")
+        self.master.geometry("300x200")
         self.frame = Frame(self.master)
         self.huh = IntVar()
           
@@ -1248,7 +1259,7 @@ class main:
                 self.master.destroy()
             except:
                 messagebox.showerror('Error', 'Ingrese un valor numérico para el valor del rubro')      
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         if self.actual_obra == '':
             self.lblerr = Label(self.frame,text="No hay obras \n disponibles",font=("Arial",14))
@@ -1258,16 +1269,16 @@ class main:
             self.frame.pack()  
         
         else:
-            self.lblm = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",10))
-            self.entrm = Entry(self.frame,width=35)
-            self.lbln = Label(self.frame,text="Ingrese Presupuesto",font=("Arial",10))
-            self.entrn = Entry(self.frame,width=35)
-            self.lblti = Label(self.frame,text="Seleccione Tipo Rubro",font=("Arial",10))
+            self.lblm = Label(self.frame,text="Ingrese Nombre del Rubro",font=("Arial",11))
+            self.entrm = Entry(self.frame,width=35,font=("Arial",11))
+            self.lbln = Label(self.frame,text="Ingrese Presupuesto",font=("Arial",11))
+            self.entrn = Entry(self.frame,width=35,font=("Arial",11))
+            self.lblti = Label(self.frame,text="Seleccione Tipo Rubro",font=("Arial",11))
             self.blank = Label(self.frame,text=" ",font=("Arial",10))
-            self.combru = Combobox(self.frame,width=32)
+            self.combru = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
             self.combru['values'] = ("Antes","Durante","Después")
             self.combru.current(0)
-            self.agregar = Button(self.frame, text = "Agregar",
+            self.agregar = Button(self.frame, text = "Agregar",style='my.TButton',
                               command = lambda: agregar_el_rubro(self,
                                                                  self.entrm,
                                                                  self.entrn,
@@ -1291,7 +1302,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x200")
+        self.master.geometry("300x220")
         self.frame = Frame(self.master)
                   
         def close_window(self):
@@ -1310,7 +1321,7 @@ class main:
                 self.master.destroy()
             except:
                 messagebox.showerror('Error', 'Ingrese un valor numérico para el valor de la transacción') 
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         
         if self.actual_obra == '':
@@ -1322,11 +1333,11 @@ class main:
         
         else:
         
-            self.master.geometry("480x200")
-            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=65)
+            self.master.geometry("600x220")
+            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",11))
+            self.cbb = Combobox(self.frame,width=65,font=("Arial",11),state='readonly')
             self.cbb['values'] = sql.get_rubros_obra(self.actual_obra)
-            self.iclient = Combobox(self.frame,width=65)
+            self.iclient = Combobox(self.frame,width=65,font=("Arial",11),state='readonly')
             losclientes = sql.select_all_clientes()
             listc = ["Ninguno"]
             for i in losclientes:
@@ -1336,10 +1347,10 @@ class main:
             self.iclient['values'] = listc
             self.iclient.current(0)
             self.cbb.current(0)
-            self.lblu = Label(self.frame,text="Ingrese Nueva Transacción",font=("Arial",10))
-            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
-            self.entru = Entry(self.frame,width=68)
-            self.agregar = Button(self.frame, text = "Agregar", 
+            self.lblu = Label(self.frame,text="Ingrese Nueva Transacción",font=("Arial",11))
+            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",11))
+            self.entru = Entry(self.frame,width=67,font=("Arial",11))
+            self.agregar = Button(self.frame, text = "Agregar",style='my.TButton', 
                               command = lambda: agregar_trans(self,
                                                               self.cbb,
                                                               self.entru,
@@ -1364,7 +1375,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x370")
+        self.master.geometry("310x400")
         self.frame = Frame(self.master)
                   
         def close_window(self):
@@ -1382,7 +1393,7 @@ class main:
                 self.quotes = []
                 self.actualizar_valores()
 
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         
         if self.actual_obra == '':
@@ -1394,10 +1405,10 @@ class main:
         
         else:
         
-            self.lbly = Label(self.frame,text="Seleccionar Tipo Contrato",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=32)
+            self.lbly = Label(self.frame,text="Seleccionar Tipo Contrato",font=("Arial",11))
+            self.cbb = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
             self.cbb['values'] = ("Inversión","Venta","Préstamo")
-            self.iclient = Combobox(self.frame,width=32)
+            self.iclient = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
             losclientes = sql.select_all_clientes()
             listc = []
             for i in losclientes:
@@ -1410,10 +1421,10 @@ class main:
             except:
                 pass
             self.cbb.current(0)
-            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",10))
-            self.agregar = Button(self.frame, text = "Agregar Cuota", 
+            self.lblcl = Label(self.frame,text="Seleccione cliente asociado",font=("Arial",11))
+            self.agregar = Button(self.frame, text = "Agregar Cuota",style='my.TButton', 
                               command = lambda: cuota(self,self.iclient))
-            self.proceder = Button(self.frame, text = "Continuar", 
+            self.proceder = Button(self.frame, text = "Continuar",style='my.TButton', 
                               command = lambda: agregar_cont(self,
                                                               self.entrna,
                                                               self.iclient,
@@ -1423,11 +1434,11 @@ class main:
                 self.proceder.state(['disabled'])
                 self.agregar.state(['disabled'])
                 
-            self.lblna = Label(self.frame,text="Ingrese Número Apartamento",font=("Arial",10))
-            self.entrna = Entry(self.frame,width=35)
+            self.lblna = Label(self.frame,text="Ingrese Número Apartamento",font=("Arial",11))
+            self.entrna = Entry(self.frame,width=35,font=("Arial",11))
             
-            self.cuotat = Label(self.frame,text="Cuotas actuales",font=("Arial",10))
-            self.cuoticas = scrolledtext.ScrolledText(self.frame,width=27,height=10)
+            self.cuotat = Label(self.frame,text="Cuotas actuales",font=("Arial",11))
+            self.cuoticas = scrolledtext.ScrolledText(self.frame,width=27,height=10,font=("Arial",11))
                 
             self.blank = Label(self.frame,text=" ")
             self.lbly.pack()
@@ -1451,7 +1462,7 @@ class main:
             self.minaster.destroy()
 
         self.minaster = master
-        self.minaster.geometry("250x260")
+        self.minaster.geometry("300x280")
         self.frame1 = Frame(self.minaster)
         
         def close_window(self):
@@ -1471,47 +1482,47 @@ class main:
                 self.minaster.destroy()
                 
                 
-        self.quit1 = Button(self.frame1, text = " Salir ", 
+        self.quit1 = Button(self.frame1, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
             
         
-        self.lbld = Label(self.frame1,text="Ingrese Valor",font=("Arial",10))
-        self.entrd = Entry(self.frame1,width=35)
+        self.lbld = Label(self.frame1,text="Ingrese Valor",font=("Arial",11))
+        self.entrd = Entry(self.frame1,width=35,font=("Arial",11))
         
-        self.lble = Label(self.frame1,text="Fecha Pago/Cobro",font=("Arial",10))
-        self.combe1 = Combobox(self.frame1,width=8)        
+        self.lble = Label(self.frame1,text="Fecha Pago/Cobro",font=("Arial",11))
+        self.combe1 = Combobox(self.frame1,width=8,font=("Arial",11),state='readonly')        
         self.combe1['values'] = ('ENE','FEB','MAR','ABR','MAY','JUN',
                                  'JUL','AGO','SEP','OCT','NOV','DIC')
         self.combe1.current(0)
-        self.combe2 = Combobox(self.frame1,width=8)
+        self.combe2 = Combobox(self.frame1,width=8,font=("Arial",11),state='readonly')
         self.combe2['values'] = (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
                                  17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
         self.combe2.current(0)
-        self.combe3 = Combobox(self.frame1,width=8)
+        self.combe3 = Combobox(self.frame1,width=8,font=("Arial",11),state='readonly')
         self.combe3['values'] = (2015,2016,2017,2018,2019,2020,2021,2022,2023,
                                   2024,2025,2026,2027,2028,2029,2030,2031,2032,
                                   2033,2034,2035)
         self.combe3.current(0)
         
-        self.lbld = Label(self.frame1,text="Concepto",font=("Arial",10))
-        self.entrd = Entry(self.frame1,width=35)
+        self.lbld = Label(self.frame1,text="Concepto",font=("Arial",11))
+        self.entrd = Entry(self.frame1,width=35,font=("Arial",11))
         
-        self.lblp = Label(self.frame1,text="Valor",font=("Arial",10))
-        self.entrp = Entry(self.frame1,width=35)
+        self.lblp = Label(self.frame1,text="Valor",font=("Arial",11))
+        self.entrp = Entry(self.frame1,width=35,font=("Arial",11))
         
-        self.lble5 = Label(self.frame1,text="Estado de Pago",font=("Arial",10))
-        self.combe5 = Combobox(self.frame1,width=32)
+        self.lble5 = Label(self.frame1,text="Estado de Pago",font=("Arial",11))
+        self.combe5 = Combobox(self.frame1,width=32,font=("Arial",11),state='readonly')
         self.combe5['values'] = ('Pagado','Por Pagar')
         self.combe5.current(0)
         
-        self.lble4 = Label(self.frame1,text="Tipo de Cuota",font=("Arial",10))
-        self.combe4 = Combobox(self.frame1,width=32)   
+        self.lble4 = Label(self.frame1,text="Tipo de Cuota",font=("Arial",11))
+        self.combe4 = Combobox(self.frame1,width=32,font=("Arial",11),state='readonly')   
         self.combe4['values'] = ('Pago a Cliente','Cobro a Cliente')
         self.combe4.current(0)
         
         self.blank = Label(self.frame1,text=" ",font=("Arial",10))
         
-        self.agregar1 = Button(self.frame1, text = "Agregar", 
+        self.agregar1 = Button(self.frame1, text = "Agregar",style='my.TButton', 
                               command = lambda: aggcuota(self,
                                                               self.entrd,
                                                               self.entrp,
@@ -1668,7 +1679,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("450x100")
+        self.master.geometry("600x100")
         self.frame = Frame(self.master)
         
         def close_window(self):
@@ -1685,12 +1696,12 @@ class main:
             self.actualizar_valores()
             
   
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
-        self.pagar = Button(self.frame, text = "Pagar", 
+        self.pagar = Button(self.frame, text = "Pagar",style='my.TButton', 
                            command = lambda : pagarlo(self))
         
-        self.cbct = Combobox(self.frame,width=67)
+        self.cbct = Combobox(self.frame,width=67,font=("Arial",11),state='readonly')
         self.sinpagar = sql.get_cuotas_por_pagar()
         
         self.valuespagar = []
@@ -1711,7 +1722,7 @@ class main:
             self.pagar.state(['disabled'])
         else:
             self.cbct.current(0)
-        self.tit = Label(self.frame,text="Seleccione cuota a pagar",font=("Arial",10))
+        self.tit = Label(self.frame,text="Seleccione cuota a pagar",font=("Arial",11))
         self.tit.pack()
         self.cbct.pack()
         self.blank = Label(self.frame,text=" ",font=("Arial",10))
@@ -1727,7 +1738,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("300x150")
         self.frame = Frame(self.master)
                   
         def close_window(self):
@@ -1771,7 +1782,7 @@ class main:
                 self.master.destroy()
             
             
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         
         if self.actual_obra == '':
@@ -1783,26 +1794,26 @@ class main:
         
         else:
         
-            self.master.geometry("460x200")
-            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=70)
+            self.master.geometry("600x230")
+            self.lbly = Label(self.frame,text="Seleccionar Rubro",font=("Arial",11))
+            self.cbb = Combobox(self.frame,width=70,font=("Arial",11),state='readonly')
             self.cbb['values'] = quitar_entradas(sql.get_rubros_obra(self.actual_obra))
             self.cbb.current(0)
-            self.lblu = Label(self.frame,text="Ingrese Nuevo Presupuesto",font=("Arial",10))
-            self.entru = Entry(self.frame,width=33)
-            self.agregar = Button(self.frame, text = " \t\tEditar Presupuesto", 
+            self.lblu = Label(self.frame,text="Ingrese Nuevo Presupuesto",font=("Arial",11))
+            self.entru = Entry(self.frame,width=33,font=("Arial",11))
+            self.agregar = Button(self.frame, text = " \t\tEditar Presupuesto",style='my.TButton', 
                               command = lambda: cam_presu(self,
                                                               self.cbb,
                                                               self.entru))
-            self.lblnm = Label(self.frame,text="Ingrese Nuevo Nombre",font=("Arial",10))
-            self.entrnm = Entry(self.frame,width=33)
-            self.agregarnm = Button(self.frame, text = "Editar Nombre\t\t\t ", 
+            self.lblnm = Label(self.frame,text="Ingrese Nuevo Nombre",font=("Arial",11))
+            self.entrnm = Entry(self.frame,width=33,font=("Arial",11))
+            self.agregarnm = Button(self.frame, text = "Editar Nombre\t\t\t ",style='my.TButton', 
                               command = lambda: cam_nom(self,
                                                               self.cbb,
                                                               self.entrnm))
-            self.erase = Button(self.frame, text = "\t\t       Eliminar Rubro", 
+            self.erase = Button(self.frame, text = "\t\t       Eliminar Rubro",style='my.TButton', 
                            command = lambda : deletethis(self, self.cbb))
-            self.quit = Button(self.frame, text = "Salir  \t\t\t\t ", 
+            self.quit = Button(self.frame, text = "Salir  \t\t\t\t ",style='my.TButton', 
                            command = lambda : close_window(self))
             self.blank = Label(self.frame,text=" ")
             self.blank2 = Label(self.frame,text=" ")
@@ -1829,7 +1840,7 @@ class main:
             self.master.destroy()
         
         self.master = master
-        self.master.geometry("250x150")
+        self.master.geometry("300x150")
         self.frame = Frame(self.master)
                   
         def close_window(self):
@@ -1840,7 +1851,7 @@ class main:
                                  nombre.get(),
                                  valor.get()) :
                 self.master.destroy() 
-        self.quit = Button(self.frame, text = " Cancelar ", 
+        self.quit = Button(self.frame, text = " Cancelar ",style='my.TButton', 
                            command = lambda : close_window(self))
         
         if self.actual_obra == '':
@@ -1852,16 +1863,16 @@ class main:
         
         else:
         
-            self.lbly = Label(self.frame,text="Seleccionar elemento",font=("Arial",10))
-            self.cbb = Combobox(self.frame,width=32)
+            self.lbly = Label(self.frame,text="Seleccionar elemento",font=("Arial",11))
+            self.cbb = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
             self.cbb['values'] = ('Nombre','Ciudad','Dirección',
                                 'Encargado','Certificado Libertad',
                                 'Licencia de Construccion', 'Apartamentos Disponibles',
                                 'Información Adicional')
             self.cbb.current(0)
-            self.lblu = Label(self.frame,text="Ingrese Nuevo Valor",font=("Arial",10))
-            self.entru = Entry(self.frame,width=35)
-            self.agregar = Button(self.frame, text = "Aceptar", 
+            self.lblu = Label(self.frame,text="Ingrese Nuevo Valor",font=("Arial",11))
+            self.entru = Entry(self.frame,width=35,font=("Arial",11))
+            self.agregar = Button(self.frame, text = "Aceptar",style='my.TButton', 
                               command = lambda: cam_obr(self,
                                                               self.cbb,
                                                               self.entru))
@@ -1889,7 +1900,7 @@ class main:
         def close_window(self):
             self.master.destroy()      
         
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.vista = Treeview(self.frame, columns = ("rubro", "tipo","valor","responsable"))
         self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
@@ -1930,7 +1941,7 @@ class main:
         def close_window(self):
             self.master.destroy()      
         
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))
         self.vista = Treeview(self.frame, columns = ("detalle", "tipo","valor","Fecha"))
         self.vsb = Scrollbar(self.frame, orient="vertical", command=self.vista.yview)
@@ -1971,7 +1982,7 @@ class main:
             self.master.destroy()
         self.master = master
         self.frame = Frame(self.master)
-        self.master.geometry("250x150")
+        self.master.geometry("300x150")
 
         def close_window(self):
             self.master.destroy() 
@@ -1990,16 +2001,16 @@ class main:
             else:
                 messagebox.showerror('Error', 'Ingrese un valor numérico para transferir')
         
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))   
 
-        self.lbltrnf = Label(self.frame,text="Ingrese Monto a Transferir",font=("Arial",10))
-        self.blank = Label(self.frame,text=" ",font=("Arial",10))
-        self.atransf = Entry(self.frame,width=35)
-        self.ttransf = Button(self.frame, text = "Aceptar", 
+        self.lbltrnf = Label(self.frame,text="Ingrese Monto a Transferir",font=("Arial",11))
+        self.blank = Label(self.frame,text=" ",font=("Arial",11))
+        self.atransf = Entry(self.frame,width=35,font=("Arial",11))
+        self.ttransf = Button(self.frame, text = "Aceptar",style='my.TButton', 
                            command = lambda : transferir_dinero(self,self.atransf,self.cbt))
-        self.cbt = Combobox(self.frame,width=32)
-        self.lblorg = Label(self.frame,text="Ingrese Origen de Fondos",font=("Arial",10))
+        self.cbt = Combobox(self.frame,width=32,font=("Arial",11),state='readonly')
+        self.lblorg = Label(self.frame,text="Ingrese Origen de Fondos",font=("Arial",11))
         self.cbt['values'] = ('Ventas','Inversionistas','Préstamos')
         self.cbt.current(0)
          
@@ -2018,7 +2029,7 @@ class main:
             self.master.destroy()
         self.master = master
         self.frame = Frame(self.master)
-        self.master.geometry("250x100")
+        self.master.geometry("300x100")
 
         def close_window(self):
             self.master.destroy() 
@@ -2039,13 +2050,13 @@ class main:
             else:
                 messagebox.showerror('Error', 'Ingrese un valor numérico para retornar')
         
-        self.quit = Button(self.frame, text = " Salir ", 
+        self.quit = Button(self.frame, text = " Salir ",style='my.TButton', 
                            command = lambda : close_window(self))   
 
-        self.lblret = Label(self.frame,text="Ingrese Monto a Retornar",font=("Arial",10))
+        self.lblret = Label(self.frame,text="Ingrese Monto a Retornar",font=("Arial",11))
         self.blank = Label(self.frame,text=" ",font=("Arial",10))
-        self.areto = Entry(self.frame,width=35)
-        self.retorn = Button(self.frame, text = "Aceptar", 
+        self.areto = Entry(self.frame,width=35,font=("Arial",11))
+        self.retorn = Button(self.frame, text = "Aceptar",style='my.TButton', 
                            command = lambda : retornar_dinero(self,self.areto))
         
         
@@ -2327,17 +2338,17 @@ class main:
             plt.close('all')
             self.master.destroy()  # this is necessary on Windows to prevent
 
-        self.buttoon = Button(self.frame, text="Salir", command=_quit)
+        self.buttoon = Button(self.frame, text="Salir",style='my.TButton', command=_quit)
         self.buttoon.pack(side="right")
-        self.buttoon1 = Button(self.frame, text="Porcentaje\nIngresos", command=graph_1)
+        self.buttoon1 = Button(self.frame, text="Porcentaje\nIngresos",style='my.TButton', command=graph_1)
         self.buttoon1.pack(side="left")
-        self.buttoon2 = Button(self.frame, text="Presupuesto\npor etapas", command=graph_2)
+        self.buttoon2 = Button(self.frame, text="Presupuesto\npor etapas",style='my.TButton', command=graph_2)
         self.buttoon2.pack(side="left")
-        self.buttoon3 = Button(self.frame, text="Vista de\nUtilidades", command=graph_3)
+        self.buttoon3 = Button(self.frame, text="Vista de\nUtilidades",style='my.TButton', command=graph_3)
         self.buttoon3.pack(side="left")
-        self.buttoon4 = Button(self.frame, text="Buscar\nRubro", command=graph_4)
+        self.buttoon4 = Button(self.frame, text="Buscar\nRubro",style='my.TButton', command=graph_4)
         self.buttoon4.pack(side="left")
-        self.combograph = Combobox(self.frame,width=70,state='disabled')
+        self.combograph = Combobox(self.frame,width=70,font=("Arial",11),state='disabled')
         rublist = []
         for k in rubs:
             rublist.append(k[3]+': '+k[2])
